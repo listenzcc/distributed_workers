@@ -99,7 +99,7 @@ class Handler_TCPServer(socketserver.BaseRequestHandler):
         # self.request - TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
         logger.info('Receive {} from {}'.format(self.data, self.client_address[0]))
-        print(self.data)
+        print(self.client_address)
         self.parse(self.data)
 
 
