@@ -35,5 +35,8 @@ class Logger():
         print(f'!!!ERROR: {msg}')
         logging.error(msg)
 
+    def debug(self, msg):
+        print(f'DEBUG: {msg}')
+        logging.debug(msg)
 
 logger = Logger()

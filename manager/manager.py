@@ -35,10 +35,27 @@ class Manager():
 
     def list_workers(self):
         """ List self.known_workers. """
-        pprint(self.known_workers)
+        unavaible_ids = []
+        j = 0
+        for id in self.known_workers:
+            ip = self.known_workers[id]['ip']
+            port = self.known_workers[id]['port']
+
+            received = self.send(json.dumps(dict(cmd='QueryState')), ip, port)
+            if received == -1:
+                unavaible_ids.append(id)
+                continue
+            print(f'[{j}] {id} - {received}')
+            j += 1
+
+        for id in unavaible_ids:
+            self._remove_worker_(id)
 
     def send(self, msg, ip, port):
-        """ send [msg] to [ip]:[port]. """
+        """ Send [msg] to [ip]:[port].
+        Return received message if send success,
+        return -1 if send fail."""
+
         if isinstance(msg, dict):
             msg = json.dumps(msg)
 
@@ -54,8 +71,8 @@ class Manager():
             client.connect((ip, port))
             client.sendall(msg)
             received = client.recv(1024)
-            logger.info(f'Send success, receive {received}.')
-            r = 0
+            logger.debug(f'Send success, receive {received}.')
+            r = received
         except Exception as err:
             logger.error(f'Send failed, {err}.')
             r = -1
@@ -65,9 +82,13 @@ class Manager():
 
     def start_listening(self, handler, port_range=PORT_RANGE):
         """ Start listening. """
+        # Try a useable port,
+        # setup a TCP server,
+        # Register on the manager.
         ip = self.local_ip
         for port in port_range:
             try:
+                # Setup TCP server
                 server = socketserver.TCPServer((ip, port),
                                                 handler)
                 t = threading.Thread(target=server.serve_forever)
@@ -80,7 +101,10 @@ class Manager():
                 logger.warning(
                     f'TCPServer starts failed on {ip}:{port}, {err}.')
                 continue
+
+        # PORT_RANGE is used up.
         logger.error(f'TCPServer can not start.')
+        return
 
 
 manager = Manager()
@@ -92,26 +116,34 @@ class Handler_TCPServer(socketserver.BaseRequestHandler):
     with TCP client. """
 
     def sendback(self, msg):
+        """ Send back [msg]. """
         if isinstance(msg, str):
             msg = msg.encode()
         self.request.sendall(msg)
 
     def response(self):
+        """ Response self.data. """
         receive = json.loads(self.data)
+
+        # NewWorker registered request
         if receive.get('cmd', None) == 'NewWorker':
             receive.pop('cmd')
             manager._add_worker_(**receive)
             self.sendback('OK')
             return
+
+        # TestLink request
         if receive.get('cmd', None) == 'TestLink':
             self.sendback('OK')
             return
+
+        # Not recognized request
         self.sendback(f'Illegal request: {self.data}.')
 
     def handle(self):
         # self.request - TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
-        logger.info('Receive {} from {}'.format(
+        logger.debug('Receive {} from {}'.format(
             self.data, self.client_address))
         self.response()
 
@@ -120,7 +152,9 @@ if __name__ == '__main__':
     manager.start_listening(Handler_TCPServer)
     d = ''
     while True:
-        c = input(f'{d}>> ')
+        if d not in manager.known_workers:
+            d = ''
+        c = input(f'{d}\n>> ')
 
         # Quit
         if c == 'q':
@@ -134,20 +168,36 @@ if __name__ == '__main__':
         # Select worker
         if c.startswith('s'):
             idx = int(c.split()[-1])
-            lst = [manager.known_workers[k] for k in manager.known_workers]
+            lst = [k for k in manager.known_workers]
             try:
                 d = lst[idx]
             except Exception as err:
                 d = ''
             continue
 
-        # Send message
+        # Send message of workload
         if c.startswith('m'):
             try:
+                ip = manager.known_workers[d]['ip']
+                port = manager.known_workers[d]['port']
                 _, cmd, n = c.split()
                 manager.send(msg=dict(cmd=cmd, n=n),
-                             ip=d['ip'],
-                             port=d['port'])
+                             ip=ip,
+                             port=port)
+            except Exception as err:
+                logger.error(f'{err}')
+            continue
+
+        # Send message of dismiss
+        if c == 'k':
+            try:
+                ip = manager.known_workers[d]['ip']
+                port = manager.known_workers[d]['port']
+                manager.send(msg=dict(cmd='Dismiss'),
+                             ip=ip,
+                             port=port)
+                manager._remove_worker_(d)
+                manager.list_workers()
             except Exception as err:
                 logger.error(f'{err}')
             continue
