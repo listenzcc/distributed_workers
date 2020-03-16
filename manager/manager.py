@@ -1,6 +1,7 @@
 """ Manager of several workers,
 it should be start advance of workers. """
 
+import os
 import time
 import json
 import socket
@@ -150,6 +151,9 @@ class Handler_TCPServer(socketserver.BaseRequestHandler):
 
 if __name__ == '__main__':
     manager.start_listening(Handler_TCPServer)
+
+    # print (os.system('pwd'))
+
     d = ''
     while True:
         if d not in manager.known_workers:
@@ -159,6 +163,11 @@ if __name__ == '__main__':
         # Quit
         if c == 'q':
             break
+
+        # New local worker
+        if c == 'n':
+            os.system('start python ./worker/worker.py')
+            continue
 
         # List known workers
         if c == 'l':
@@ -201,6 +210,10 @@ if __name__ == '__main__':
             except Exception as err:
                 logger.error(f'{err}')
             continue
+
+        # [c] is invalid if it reaches here
+        if c:
+            print (f'Invalid input {c}, doing nothing.')
 
     try:
         manager.server.shutdown()

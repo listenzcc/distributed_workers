@@ -95,7 +95,11 @@ class Worker():
                     raise ConnectionRefusedError
 
                 logger.info(f'TCPServer started at {ip}:{port}.')
+                t.join()
                 return
+            except OSError:
+                # It is likely that the port is used, stop compliant and try another.
+                continue
             except Exception as err:
                 logger.warning(
                     f'TCPServer starts failed on {ip}:{port}, {err}.')
@@ -182,5 +186,6 @@ class Handler_TCPServer(socketserver.BaseRequestHandler):
 
 if __name__ == '__main__':
     worker.start_listening(Handler_TCPServer)
-    print('This window will close in 5 seconds.')
-    time.sleep(5)
+    for t in range(5, 0, -1):
+        print(f'This window will close in {t} seconds.')
+        time.sleep(1)

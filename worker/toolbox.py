@@ -1,7 +1,7 @@
 import logging
 import socket
 
-MANAGER_IP = '192.168.11.104'
+MANAGER_IP = '10.0.2.74'
 MANAGER_PORT = 60000
 
 LOGGER_NAME = 'logging.log'
