@@ -43,7 +43,7 @@ print(send(dict(mode='lixian',
 
 print(send(dict(mode='zaixian',
                 cmd='kaishicaiji',
-                moxinglujing='[Path-to-Model]',
+                moxinglujing='[模型目录]',
                 xiangxiangcishu=10,
                 zantingshijian=5,
                 timestamp=time.time())))
