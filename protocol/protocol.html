@@ -22,6 +22,7 @@
     </head>
     <body class="vscode-light">
         <h1 id="protocol-of-interface-between-ui-and-controller">Protocol of Interface between UI and Controller</h1>
+<p>E-mail: <a href="mailto:listenzcc@mail.bnu.edu.cn">listenzcc@mail.bnu.edu.cn</a></p>
 <ul>
 <li><a href="#protocol-of-interface-between-ui-and-controller">Protocol of Interface between UI and Controller</a>
 <ul>
@@ -38,32 +39,37 @@
 </li>
 </ul>
 <h2 id="definition">Definition</h2>
-<p>UI: The User Interface software.</p>
-<p>Controller: The backend workload controller.</p>
+<p>UI: The User Interface software, who send TCP socket to TCP Server.</p>
+<p>Controller: The backend workload controller, who maintain TCP Server.</p>
 <p>IP and PORT: The IP address and PORT number of TCP Server.</p>
 <h2 id="communication">Communication</h2>
 <p>UI and Controller communicate through TCP socket.
 The process is:</p>
 <ul>
-<li>Controller starts a TCP Server, listening on <em>IP:PORT</em>.</li>
-<li>The UI send TCP socket to TCP Server as <em>Socket Format</em>.</li>
+<li>Controller starts a TCP Server, listening at <em>IP:PORT</em>.</li>
+<li>The UI send TCP socket to TCP Server as <a href="#socket-format"><em>Socket Format</em></a>.</li>
 <li>The TCP Server will reply b'OK' if the transmission success.</li>
 </ul>
 <h2 id="socket-format">Socket Format</h2>
-<p>Socket content should be in bits (UTF-8 encoding), using JSON format.</p>
+<p>Socket content should be in bytes (UTF-8 encoding), using JSON format.</p>
 <p>A legal socket content is something like</p>
 <p>b'{mode=&quot;lixian&quot;, cmd=&quot;kaishicaiji&quot;, xiangxiangcishu=3, shiyanzuci=5, timestamp=1584664654.5274417}'</p>
-<pre><code>```python
+<pre><code class="language-python"><div><span class="hljs-comment"># Setup dict</span>
 content = dict(
-    mode=&quot;lixian&quot;,
-    cmd=&quot;kaishicaiji&quot;,
-    xiangxiangcishu=3,
-    shiyanzuci=5,
-    timestamp=time.time()
-)
-```
-</code></pre>
-<p>All socket content is in following table:</p>
+        mode=<span class="hljs-string">"lixian"</span>,
+        cmd=<span class="hljs-string">"kaishicaiji"</span>,
+        xiangxiangcishu=<span class="hljs-number">3</span>,
+        shiyanzuci=<span class="hljs-number">5</span>,
+        timestamp=time.time()
+    )
+
+<span class="hljs-comment"># Dump dict into JSON and encode</span>
+bytes = json.dumps(content).encode()
+
+<span class="hljs-comment"># Send bytes</span>
+<span class="hljs-comment"># See check_sender.py for detail</span>
+</div></code></pre>
+<p>All required socket content are in following table:</p>
 <table>
 <thead>
 <tr>
@@ -118,6 +124,8 @@ content = dict(
 </tr>
 </tbody>
 </table>
+<p>A legal socket content should contain mode as Mode, cmd as Command and para as Parameters as required.
+No more, No less.</p>
 <h2 id="example-code">Example code</h2>
 <p>The example codes in python are provided: <a href="./check_listener.py">TCP Server</a>, <a href="./check_sender.py">UI Sender</a>.</p>
 <p>IP and PORT are set up in <a href="./profile.py">Profile</a>.</p>
