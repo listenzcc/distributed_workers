@@ -1,3 +1,4 @@
+""" Send message through TCP socket. """
 import socket
 import json
 import time

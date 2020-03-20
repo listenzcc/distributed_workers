@@ -61,13 +61,13 @@ class CheckTable():
                         box = '[----]'
                     else:
                         box = '[PASS]'
-                    print(f'{box} {k}: {p}:: {self.issues[k][p]}')
+                    print(f'{box} {k}: {p}={self.issues[k][p]}')
             else:
                 if self.issues[k] is None:
                     box = '[----]'
                 else:
                     box = '[PASS]'
-                print(f'{box} {k}:: {self.issues[k]}')
+                print(f'{box} {k}={self.issues[k]}')
 
 
 if __name__ == '__main__':

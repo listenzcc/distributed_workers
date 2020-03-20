@@ -29,6 +29,7 @@ class Handler_TCPServer(socketserver.BaseRequestHandler):
         received = json.loads(self.data)
         ct.add(received)
         ct.pprint()
+        print('Press ENTER to escape.')
         self.sendback('OK')
 
     def handle(self):
