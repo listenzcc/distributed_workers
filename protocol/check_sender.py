@@ -5,7 +5,7 @@ import time
 
 from profile import IP, PORT, logging
 
-logging.info('aa')
+logging.info('Starting...')
 
 def send(msg):
     try:

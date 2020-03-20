@@ -6,6 +6,7 @@ E-mail: listenzcc@mail.bnu.edu.cn
   - [Definition](#definition)
   - [Communication](#communication)
   - [Socket Format](#socket-format)
+  - [Runtime Errors](#runtime-errors)
   - [Example code](#example-code)
     - [Run demo test](#run-demo-test)
     - [Run UI test](#run-ui-test)
@@ -25,7 +26,7 @@ The process is:
 
 - Controller starts a TCP Server, listening at *IP:PORT*.
 - The UI send TCP socket to TCP Server as [*Socket Format*](#socket-format).
-- The TCP Server will reply b'OK' if the transmission success.
+- The TCP Server will reply b'OK' if the command is successfully operated.
 
 ## Socket Format
 
@@ -49,10 +50,12 @@ content = dict(
 bytes = json.dumps(content).encode()
 
 # Send bytes
-# See check_sender.py for detail
+# See client.py for detail
 ```
 
 All required socket content are in following table:
+
+From client to server
 
 | Mode | Command | Description | Parameters
 | ---- | ------- | ----------- | ----------
@@ -64,12 +67,32 @@ All required socket content are in following table:
 | zaixian | jieshucaiji | 在线-结束采集 | timestamp: 时间戳
 | zaixian | jieshuciji  | 在线-结束刺激 | timestamp: 时间戳
 
+From server to client
+
+| Mode | Command | Description | Parameters
+| ---- | ------- | ----------- | ----------
+| lixian | jianmo | 离线-建模 | timestamp: 时间戳; zhunquelv: 准确率
+
 A legal socket content should contain mode as Mode, cmd as Command and para as Parameters as required.
 No more, No less.
 
+## Runtime Errors
+
+We defined Runtime Errors as following
+
+| Name | Comments |
+| ---- | -------- |
+| FileNotFoundError | File not found on given path
+| ValueError | Incoming value can not be correctly parsed
+| InterruptedError | Operation being interrupted
+| BusyError | Operation failed because the resource is busy
+| UnknownError | For errors that are not defined
+
+The details of Runtime Errors can be found in [profile](./profile.py)
+
 ## Example code
 
-The example codes in python are provided: [TCP Server](./check_listener.py), [UI Sender](./check_sender.py).
+The example codes in python are provided: [TCP Server](./server.py), [UI Sender](./client.py).
 
 IP and PORT are set up in [Profile](./profile.py).
 
@@ -81,6 +104,8 @@ Run python scripts as following:
 - Start TCP Server by run *TCP Server*
 - Run *UI Sender* to simulate socket communication
 - You may see output of *TCP Server* like following, means Server has received all the information it will need in the project.
+- The server will send accuracy to client for test.
+- The server will send Runtime Errors for test.
 
     ```ruby
     [PASS] lixian-kaishicaiji: xiangxiangcishu=3  
@@ -97,6 +122,8 @@ Run python scripts as following:
     [PASS] zaixian-jieshucaiji: timestamp=1584663654.5754406  
     [PASS] zaixian-jieshuciji: timestamp=1584663654.591445
     ```
+
+![Example figure](sample.png)
 
 ### Run UI test
 
