@@ -13,12 +13,14 @@ server.listen(1)
 client, address = server.accept()
 logging.debug(f'Connection established at {address}')
 
+
 def send(msg, client=client, delay=1):
     if isinstance(msg, dict):
         msg = json.dumps(msg).encode()
     client.send(msg)
     logging.debug(f'Server send {msg}')
     time.sleep(delay)
+
 
 def listen(client=client):
     while True:
