@@ -9,6 +9,15 @@ IP = 'localhost'
 PORT = 63356
 BUF_SIZE = 1024
 
+Responses = dict(
+    OKResponse = dict(
+        # OK
+        type='Resp',
+        content='OK',
+        timestamp=0,
+    )
+)
+
 RuntimeErrors = dict(
     FileNotFoundError = dict(
         # File not found on given path

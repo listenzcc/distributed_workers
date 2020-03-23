@@ -3,7 +3,7 @@ import json
 import socket
 import threading
 from check_table import CheckTable
-from profile import IP, PORT, BUF_SIZE, RuntimeErrors, logging
+from profile import IP, PORT, BUF_SIZE, RuntimeErrors, Responses, logging
 
 ct = CheckTable()
 
@@ -26,10 +26,13 @@ def listen(client=client):
     while True:
         data = client.recv(BUF_SIZE)
         logging.debug(f'Server received {data}')
+        send(Responses['OKResponse'])
         if ct.add(json.loads(data)) == 0:
-            client.sendall('OK'.encode())
+            # client.sendall('OK'.encode())
+            pass
         else:
-            send(RuntimeErrors['ValueError'], delay=0)
+            pass
+            # send(RuntimeErrors['ValueError'], delay=0)
         ct.pprint()
 
 
