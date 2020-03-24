@@ -59,15 +59,15 @@ All required socket content are in following table:
 
 From client to server
 
-| Mode    | Command     | Description   | Parameters                                                                                       |
-| ------- | ----------- | ------------- | ------------------------------------------------------------------------------------------------ |
-| lixian  | kaishicaiji | 离线-开始采集 | timestamp: 时间戳; xiangxiangcishu: 想象次数; shiyanzuci: 实验组次; dongzuoleixing: 动作类型     |
-| lixian  | jieshucaiji | 离线-结束采集 | timestamp: 时间戳                                                                                |
-| lixian  | jieshuciji  | 离线-结束刺激 | timestamp: 时间戳                                                                                |
-| lixian  | jianmo      | 离线-建模     | timestamp: 时间戳; shujulujing: 数据路径                                                         |
-| zaixian | kaishicaiji | 在线-开始采集 | timestamp: 时间戳; xiangxiangcishu: 想象次数; zantingshijian: 暂停时间; dongzuoleixing: 动作类型 |
-| zaixian | jieshucaiji | 在线-结束采集 | timestamp: 时间戳                                                                                |
-| zaixian | jieshuciji  | 在线-结束刺激 | timestamp: 时间戳                                                                                |
+| Mode    | Command     | Description   | Parameters                                                                                                               |
+| ------- | ----------- | ------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| lixian  | kaishicaiji | 离线-开始采集 | timestamp: 时间戳; xiangxiangcishu: 想象次数; shiyanzuci: 实验组次; dongzuoleixing: 动作类型                             |
+| lixian  | jieshucaiji | 离线-结束采集 | timestamp: 时间戳                                                                                                        |
+| lixian  | jieshuciji  | 离线-结束刺激 | timestamp: 时间戳                                                                                                        |
+| lixian  | jianmo      | 离线-建模     | timestamp: 时间戳; shujulujing: 数据路径                                                                                 |
+| zaixian | kaishicaiji | 在线-开始采集 | timestamp: 时间戳; moxinglujing: 模型路径; xiangxiangcishu: 想象次数; zantingshijian: 暂停时间; dongzuoleixing: 动作类型 |
+| zaixian | jieshucaiji | 在线-结束采集 | timestamp: 时间戳                                                                                                        |
+| zaixian | jieshuciji  | 在线-结束刺激 | timestamp: 时间戳                                                                                                        |
 
 From server to client
 

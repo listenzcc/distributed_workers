@@ -5,43 +5,34 @@ class CheckTable():
 
     def define_issues(self):
         self.issues = {
-            'lixian-kaishicaiji': dict(
-                timestamp=float,
-                xiangxiangcishu=int,
-                shiyanzuci=int,
-                dongzuoleixing=int
-            ),
-            'lixian-jieshucaiji': dict(
-                timestamp=float
-            ),
-            'lixian-jieshuciji': dict(
-                timestamp=float
-            ),
-            'lixian-jianmo': dict(
-                timestamp=float,
-                shujulujing=str
-            ),
-            'zaixian-kaishicaiji': dict(
-                timestamp=float,
-                xiangxiangcishu=int,
-                zantingshijian=int,
-                dongzuoleixing=int,
-                moxinglujing=str
-            ),
-            'zaixian-jieshucaiji': dict(
-                timestamp=float
-            ),
-            'zaixian-jieshuciji': dict(
-                timestamp=float
-            )
+            'lixian-kaishicaiji':
+            dict(timestamp=float,
+                 xiangxiangcishu=int,
+                 shiyanzuci=int,
+                 dongzuoleixing=int),
+            'lixian-jieshucaiji':
+            dict(timestamp=float),
+            'lixian-jieshuciji':
+            dict(timestamp=float),
+            'lixian-jianmo':
+            dict(shujulujing=str, timestamp=float),
+            'zaixian-kaishicaiji':
+            dict(timestamp=float,
+                 xiangxiangcishu=int,
+                 zantingshijian=int,
+                 dongzuoleixing=int,
+                 moxinglujing=str),
+            'zaixian-jieshucaiji':
+            dict(timestamp=float),
+            'zaixian-jieshuciji':
+            dict(timestamp=float)
         }
 
     def add(self, query):
         if not isinstance(query, dict):
             return 1
 
-        if not all(['mode' in query,
-                    'cmd' in query]):
+        if not all(['mode' in query, 'cmd' in query]):
             return 1
 
         # Regular query and get iss based on cmd
@@ -54,8 +45,8 @@ class CheckTable():
 
         # Cross check on iss and query
         try:
-            assert(len(iss) == len(query))
-            assert(all(e in iss for e in query))
+            assert (len(iss) == len(query))
+            assert (all(e in iss for e in query))
         except AssertionError:
             return 1
 
