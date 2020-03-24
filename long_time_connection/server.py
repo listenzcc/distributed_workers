@@ -26,13 +26,16 @@ def listen(client=client):
     while True:
         data = client.recv(BUF_SIZE)
         logging.debug(f'Server received {data}')
-        send(Responses['OKResponse'])
         if ct.add(json.loads(data)) == 0:
-            # client.sendall('OK'.encode())
-            pass
+            # Response 'OK' if received data is legal.
+            resp = Responses['OKResponse']
+            resp['repeat'] = data.decode()
+            send(resp, delay=0)
         else:
-            pass
-            # send(RuntimeErrors['ValueError'], delay=0)
+            # Response 'Fail' if received data is illegal.
+            resp = Responses['FailResponse']
+            resp['repeat'] = data.decode()
+            send(resp, delay=0)
         ct.pprint()
 
 
@@ -41,11 +44,12 @@ t.start()
 
 time.sleep(10)
 
-send(dict(
-    mode='lixian',
-    cmd='jianmo',
-    zhunquelv=0.9,
-    timestamp=time.time()))
+send(
+    dict(mode='lixian',
+         cmd='jianmo',
+         zhunquelv=0.9,
+         moxinglujing='[path-to-module]',
+         timestamp=time.time()))
 
 for err in RuntimeErrors.values():
     send(err)

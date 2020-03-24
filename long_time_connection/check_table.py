@@ -8,7 +8,8 @@ class CheckTable():
             'lixian-kaishicaiji': dict(
                 timestamp=float,
                 xiangxiangcishu=int,
-                shiyanzuci=int
+                shiyanzuci=int,
+                dongzuoleixing=int
             ),
             'lixian-jieshucaiji': dict(
                 timestamp=float
@@ -24,6 +25,7 @@ class CheckTable():
                 timestamp=float,
                 xiangxiangcishu=int,
                 zantingshijian=int,
+                dongzuoleixing=int,
                 moxinglujing=str
             ),
             'zaixian-jieshucaiji': dict(

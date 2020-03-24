@@ -29,6 +29,7 @@
 <li><a href="#definition">Definition</a></li>
 <li><a href="#communication">Communication</a></li>
 <li><a href="#socket-format">Socket Format</a></li>
+<li><a href="#responses">Responses</a></li>
 <li><a href="#runtime-errors">Runtime Errors</a></li>
 <li><a href="#example-code">Example code</a>
 <ul>
@@ -49,7 +50,7 @@ The process is:</p>
 <ul>
 <li>Controller starts a TCP Server, listening at <em>IP:PORT</em>.</li>
 <li>The UI send TCP socket to TCP Server as <a href="#socket-format"><em>Socket Format</em></a>.</li>
-<li>The TCP Server will reply b'OK' if the command is successfully operated.</li>
+<li>The TCP Server will reply OKResponse or UnknownResponse when receives a json package.</li>
 </ul>
 <h2 id="socket-format">Socket Format</h2>
 <p>Socket content should be in bytes (UTF-8 encoding), using JSON format.</p>
@@ -61,6 +62,7 @@ content = dict(
         cmd=<span class="hljs-string">"kaishicaiji"</span>,
         xiangxiangcishu=<span class="hljs-number">3</span>,
         shiyanzuci=<span class="hljs-number">5</span>,
+        dongzuoleixing=<span class="hljs-number">2</span>,
         timestamp=time.time()
     )
 
@@ -86,7 +88,7 @@ bytes = json.dumps(content).encode()
 <td>lixian</td>
 <td>kaishicaiji</td>
 <td>离线-开始采集</td>
-<td>timestamp: 时间戳; xiangxiangcishu: 想象次数; shiyanzuci: 实验组次</td>
+<td>timestamp: 时间戳; xiangxiangcishu: 想象次数; shiyanzuci: 实验组次; dongzuoleixing: 动作类型</td>
 </tr>
 <tr>
 <td>lixian</td>
@@ -110,7 +112,7 @@ bytes = json.dumps(content).encode()
 <td>zaixian</td>
 <td>kaishicaiji</td>
 <td>在线-开始采集</td>
-<td>timestamp: 时间戳; xiangxiangcishu: 想象次数; zantingshijian: 暂停时间</td>
+<td>timestamp: 时间戳; xiangxiangcishu: 想象次数; zantingshijian: 暂停时间; dongzuoleixing: 动作类型</td>
 </tr>
 <tr>
 <td>zaixian</td>
@@ -141,44 +143,111 @@ bytes = json.dumps(content).encode()
 <td>lixian</td>
 <td>jianmo</td>
 <td>离线-建模</td>
-<td>timestamp: 时间戳; zhunquelv: 准确率</td>
+<td>timestamp: 时间戳; zhunquelv: 准确率; moxinglujing: 模型路径</td>
 </tr>
 </tbody>
 </table>
 <p>A legal socket content should contain mode as Mode, cmd as Command and para as Parameters as required.
 No more, No less.</p>
+<h2 id="responses">Responses</h2>
+<p>Once received a socket package, client or server should response a JSON package immediately, the format is as following</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>State</th>
+<th>[Meaning]</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Resp</td>
+<td>OK</td>
+<td>The request is legal.</td>
+<td>repeat: 重复接收到的内容; timestamp: 时间戳</td>
+</tr>
+<tr>
+<td>Resp</td>
+<td>FAIL</td>
+<td>The request can not be parsed.</td>
+<td>repeat: 重复接收到的内容; timestamp: 时间戳</td>
+</tr>
+</tbody>
+</table>
+<p>Example code:</p>
+<pre><code class="language-python"><div>OKResponse = dict(
+    type=<span class="hljs-string">'Resp'</span>,
+    state=<span class="hljs-string">'OK'</span>,
+    repeat=<span class="hljs-string">''</span>, <span class="hljs-comment"># Repeat what has been received.</span>
+    timestamp=time.time()
+)
+FailResponse = dict(
+    type=<span class="hljs-string">'Resp'</span>,
+    state=<span class="hljs-string">'FAIL'</span>,
+    repeat=<span class="hljs-string">''</span>, <span class="hljs-comment"># Repeat what has been received.</span>
+    timestamp=time.time(),
+)
+</div></code></pre>
 <h2 id="runtime-errors">Runtime Errors</h2>
 <p>We defined Runtime Errors as following</p>
 <table>
 <thead>
 <tr>
+<th>Type</th>
 <th>Name</th>
-<th>Comments</th>
+<th>[Meaning]</th>
+<th>Parameters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>RuntimeError</td>
 <td>FileNotFoundError</td>
 <td>File not found on given path</td>
+<td>detail: 简要描述; timestamp: 时间戳</td>
 </tr>
 <tr>
+<td>RuntimeError</td>
 <td>ValueError</td>
 <td>Incoming value can not be correctly parsed</td>
+<td>detail: 简要描述; timestamp: 时间戳</td>
 </tr>
 <tr>
+<td>RuntimeError</td>
 <td>InterruptedError</td>
 <td>Operation being interrupted</td>
+<td>detail: 简要描述; timestamp: 时间戳</td>
 </tr>
 <tr>
+<td>RuntimeError</td>
 <td>BusyError</td>
 <td>Operation failed because the resource is busy</td>
+<td>detail: 简要描述; timestamp: 时间戳</td>
 </tr>
 <tr>
+<td>RuntimeError</td>
 <td>UnknownError</td>
 <td>For errors that are not defined</td>
+<td>detail: 简要描述; timestamp: 时间戳</td>
 </tr>
 </tbody>
 </table>
+<p>Example code:</p>
+<pre><code class="language-python"><div>FileNotFoundError = dict(
+    type=<span class="hljs-string">'RuntimeError'</span>,
+    name=<span class="hljs-string">'FileNotFoundError'</span>,
+    detail=<span class="hljs-string">'Can not found legal data files in {path}.'</span>.format(path=<span class="hljs-string">'[path]'</span>),
+    timestamp=time.time(),
+)
+
+BusyError = dict(
+    type=<span class="hljs-string">'RuntimeError'</span>,
+    name=<span class="hljs-string">'BusyError'</span>,
+    detail=<span class="hljs-string">'The backend computing resources is busy. Module training failed.'</span>,
+    timestamp=time.time(),
+)
+</div></code></pre>
 <p>The details of Runtime Errors can be found in <a href="./profile.py">profile</a></p>
 <h2 id="example-code">Example code</h2>
 <p>The example codes in python are provided: <a href="./server.py">TCP Server</a>, <a href="./client.py">UI Sender</a>.</p>
@@ -203,18 +272,18 @@ No more, No less.</p>
 </li>
 <li>
 <p>The server will send Runtime Errors for test.</p>
-<pre><code class="language-ruby"><div>[PASS] lixian-<span class="hljs-symbol">kaishicaiji:</span> xiangxiangcishu=<span class="hljs-number">3</span>  
-[PASS] lixian-<span class="hljs-symbol">kaishicaiji:</span> shiyanzuci=<span class="hljs-number">5</span>  
-[PASS] lixian-<span class="hljs-symbol">kaishicaiji:</span> timestamp=<span class="hljs-number">1584663654.5134408</span>  
-[PASS] lixian-<span class="hljs-symbol">jieshucaiji:</span> timestamp=<span class="hljs-number">1584663654.5274417</span>  
-[PASS] lixian-<span class="hljs-symbol">jieshuciji:</span> timestamp=<span class="hljs-number">1584663654.5384455</span>  
-[PASS] lixian-<span class="hljs-symbol">jianmo:</span> shujulujing=[Path-to-Data]  
-[PASS] lixian-<span class="hljs-symbol">jianmo:</span> timestamp=<span class="hljs-number">1584663654.5464418</span>  
-[PASS] zaixian-<span class="hljs-symbol">kaishicaiji:</span> xiangxiangcishu=<span class="hljs-number">10</span>  
-[PASS] zaixian-<span class="hljs-symbol">kaishicaiji:</span> zantingshijian=<span class="hljs-number">5</span>  
-[PASS] zaixian-<span class="hljs-symbol">kaishicaiji:</span> moxinglujing=[模型目录]  
-[PASS] zaixian-<span class="hljs-symbol">kaishicaiji:</span> timestamp=<span class="hljs-number">1584663654.5604415</span>  
-[PASS] zaixian-<span class="hljs-symbol">jieshucaiji:</span> timestamp=<span class="hljs-number">1584663654.5754406</span>  
+<pre><code class="language-ruby"><div>[PASS] lixian-<span class="hljs-symbol">kaishicaiji:</span> xiangxiangcishu=<span class="hljs-number">3</span>
+[PASS] lixian-<span class="hljs-symbol">kaishicaiji:</span> shiyanzuci=<span class="hljs-number">5</span>
+[PASS] lixian-<span class="hljs-symbol">kaishicaiji:</span> timestamp=<span class="hljs-number">1584663654.5134408</span>
+[PASS] lixian-<span class="hljs-symbol">jieshucaiji:</span> timestamp=<span class="hljs-number">1584663654.5274417</span>
+[PASS] lixian-<span class="hljs-symbol">jieshuciji:</span> timestamp=<span class="hljs-number">1584663654.5384455</span>
+[PASS] lixian-<span class="hljs-symbol">jianmo:</span> shujulujing=[Path-to-Data]
+[PASS] lixian-<span class="hljs-symbol">jianmo:</span> timestamp=<span class="hljs-number">1584663654.5464418</span>
+[PASS] zaixian-<span class="hljs-symbol">kaishicaiji:</span> xiangxiangcishu=<span class="hljs-number">10</span>
+[PASS] zaixian-<span class="hljs-symbol">kaishicaiji:</span> zantingshijian=<span class="hljs-number">5</span>
+[PASS] zaixian-<span class="hljs-symbol">kaishicaiji:</span> moxinglujing=[模型目录]
+[PASS] zaixian-<span class="hljs-symbol">kaishicaiji:</span> timestamp=<span class="hljs-number">1584663654.5604415</span>
+[PASS] zaixian-<span class="hljs-symbol">jieshucaiji:</span> timestamp=<span class="hljs-number">1584663654.5754406</span>
 [PASS] zaixian-<span class="hljs-symbol">jieshuciji:</span> timestamp=<span class="hljs-number">1584663654.591445</span>
 </div></code></pre>
 </li>

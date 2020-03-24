@@ -27,38 +27,37 @@ def send(msg, client=client):
     time.sleep(1)
 
 
-send(dict(mode='lixian',
-          cmd='kaishicaiji',
-          xiangxiangcishu=3,
-          shiyanzuci=5,
-          timestamp=time.time()))
+# Legal request
+send(
+    dict(mode='lixian',
+         cmd='kaishicaiji',
+         xiangxiangcishu=3,
+         shiyanzuci=5,
+         dongzuoleixing=2,
+         timestamp=time.time()))
 
-send(dict(mode='lixian',
-          cmd='jieshucaiji',
-          timestamp=time.time()))
+send(dict(mode='lixian', cmd='jieshucaiji', timestamp=time.time()))
 
-send(dict(mode='lixian',
-          cmd='jieshuciji',
-          timestamp=time.time()))
+send(dict(mode='lixian', cmd='jieshuciji', timestamp=time.time()))
 
-send(dict(mode='lixian',
-          cmd='jianmo',
-          shujulujing='[Path-to-Data]',
-          timestamp=time.time()))
+send(
+    dict(mode='lixian',
+         cmd='jianmo',
+         shujulujing='[Path-to-Data]',
+         timestamp=time.time()))
 
-send(dict(mode='zaixian',
-          cmd='kaishicaiji',
-          moxinglujing='[模型目录]',
-          xiangxiangcishu=10,
-          zantingshijian=5,
-          timestamp=time.time()))
+send(
+    dict(mode='zaixian',
+         cmd='kaishicaiji',
+         moxinglujing='[模型目录]',
+         xiangxiangcishu=10,
+         zantingshijian=5,
+         dongzuoleixing=4,
+         timestamp=time.time()))
 
-send(dict(mode='zaixian',
-          cmd='jieshucaiji',
-          timestamp=time.time()))
+send(dict(mode='zaixian', cmd='jieshucaiji', timestamp=time.time()))
 
-send(dict(mode='zaixian',
-          cmd='jieshuciji',
-          timestamp=time.time()))
+send(dict(mode='zaixian', cmd='jieshuciji', timestamp=time.time()))
 
-send(dict(mode='wrongmode'))
+# Illegal request
+send(dict(mode='wrongmode', timestamp=time.time()))
