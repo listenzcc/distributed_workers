@@ -5,53 +5,85 @@ import traceback
 from profile import IP, PORT, BUF_SIZE
 from logger import default_logger as logger
 
-num_clients = 1
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((IP, PORT))
-server.listen(num_clients)
 
+class Server():
+    def __init__(self):
+        # Init server
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind((IP, PORT))
+        self.server.listen(1)
+        # Init clients pool
+        self.clients = []
+        # self.starts()
 
-def accept_client():
-    """ Start server by accepting new client connection """
-    logger.info('Server starts listening.')
-    client, address = server.accept()
-    logger.info(f'Connection established: {client}')
-    return client
+    def refresh(self, silent=False):
+        """ Refresh clients pool """
+        self.clients = [c for c in self.clients if not c.client._closed]
+        if not silent:
+            print('-' * 80)
+            [c.pprint() for c in self.clients]
+
+    def starts(self):
+        """ Start serving """
+        t = threading.Thread(target=self.maintain_clients)
+        t.start()
+
+    def accept_client(self):
+        """ Start server by accepting new client connection """
+        logger.info('Server starts listening.')
+        client, address = self.server.accept()
+        logger.info(f'Connection established: {client}')
+        return client
+
+    def maintain_clients(self):
+        """ Maintain clients pool """
+        while True:
+            # When new connection established,
+            # make new client
+            client = Client(self.accept_client(), self.refresh)
+            client.starts()
+            # append into clients pool
+            self.clients.append(client)
+            # Refresh
+            self.refresh()
 
 
 class Client():
-    def __init__(self, client):
+    def __init__(self, client, foo):
+        """ Init,
+        client: client connection,
+        foo: refresh function of 3rd party """
         self.client = client
+        self.foo = foo
 
     def pprint(self):
+        """ Print client str. """
         print(self.client.__str__(), self.client._closed)
 
     def starts(self):
+        """ Start listening. """
         t = threading.Thread(target=self.listen)
         t.start()
 
     def listen(self):
+        """ Listening server. """
         while True:
             try:
                 data = self.client.recv(BUF_SIZE)
                 logger.info(f'Server received {data}, from {self.client}')
+                self.client.sendall(f'Server received {data}'.encode())
                 if data == b'':
                     raise Exception('Empty received.')
             except:
                 self.client.close()
-                traceback.print_exc()
+                self.foo()
+                # traceback.print_exc()
                 break
                 # self.client = accept_client()
 
 
-clients = []
-while True:  # len(clients) < num_clients:
-    client = Client(accept_client())
-    client.starts()
-    clients.append(client)
-    print('-' * 80)
-    clients = [c for c in clients if not c.client._closed]
-    [c.pprint() for c in clients]
+server = Server()
+server.starts()
 
 # while True:
 #     try:
@@ -66,4 +98,16 @@ while True:  # len(clients) < num_clients:
 #         client = accept_client()
 
 if __name__ == '__main__':
-    input('Enter to escape.')
+    while True:
+        # Wait input
+        msg = input('>> ')
+
+        # Empty msg
+        if msg == '':
+            server.refresh()
+            continue
+
+        # Send message
+        if not msg == '':
+            for c in server.clients:
+                c.client.sendall(msg.encode())
