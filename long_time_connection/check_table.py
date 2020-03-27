@@ -4,29 +4,23 @@ class CheckTable():
         pass
 
     def define_issues(self):
-        self.issues = {
-            'lixian-kaishicaiji':
-            dict(timestamp=float,
-                 xiangxiangcishu=int,
-                 shiyanzuci=int,
-                 dongzuoleixing=int),
-            'lixian-jieshucaiji':
-            dict(timestamp=float),
-            'lixian-jieshuciji':
-            dict(timestamp=float),
-            'lixian-jianmo':
-            dict(shujulujing=str, timestamp=float),
-            'zaixian-kaishicaiji':
-            dict(timestamp=float,
-                 xiangxiangcishu=int,
-                 zantingshijian=int,
-                 dongzuoleixing=int,
-                 moxinglujing=str),
-            'zaixian-jieshucaiji':
-            dict(timestamp=float),
-            'zaixian-jieshuciji':
-            dict(timestamp=float)
-        }
+        self.issues = {'lixian-kaishicaiji': dict(timestamp=float,
+                                                  xiangxiangcishu=int,
+                                                  shiyanzuci=int,
+                                                  dongzuoleixing=int,
+                                                  SUBJECTID=str,
+                                                  SESSIONID=str),
+                       'lixian-jieshucaiji': dict(timestamp=float),
+                       'lixian-jieshuciji': dict(timestamp=float),
+                       'lixian-jianmo': dict(shujulujing=str, timestamp=float),
+                       'zaixian-kaishicaiji': dict(timestamp=float,
+                                                   xiangxiangcishu=int,
+                                                   zantingshijian=int,
+                                                   dongzuoleixing=int,
+                                                   moxinglujing=str),
+                       'zaixian-jieshucaiji': dict(timestamp=float),
+                       'zaixian-jieshuciji': dict(timestamp=float)
+                       }
 
     def add(self, query):
         if not isinstance(query, dict):

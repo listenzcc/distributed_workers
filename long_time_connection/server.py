@@ -44,12 +44,11 @@ t.start()
 
 time.sleep(10)
 
-send(
-    dict(mode='lixian',
-         cmd='jianmo',
-         zhunquelv=0.9,
-         moxinglujing='[path-to-module]',
-         timestamp=time.time()))
+send(dict(mode='lixian',
+          cmd='jianmo',
+          zhunquelv=0.9,
+          moxinglujing='[path-to-module]',
+          timestamp=time.time()))
 
 for err in RuntimeErrors.values():
     send(err)

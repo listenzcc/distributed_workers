@@ -9,6 +9,16 @@ IP = 'localhost'
 PORT = 63356
 BUF_SIZE = 1024
 
+Messages = dict(ModelBuilt=dict(
+    # Model built
+    type='Msg',
+    name='ModelBuilt',
+    repeat='',
+    moxinglujing='[path-to-model]',
+    zhunquelv=.95,
+    timestamp=0,
+))
+
 Responses = dict(
     OKResponse=dict(
         # OK
