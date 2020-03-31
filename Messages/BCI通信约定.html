@@ -2,7 +2,7 @@
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>通信约定</title>
+        <title>BCI 通信报文</title>
         
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
@@ -21,11 +21,13 @@
         
     </head>
     <body class="vscode-light">
-        <h1 id="%e9%80%9a%e4%bf%a1%e7%ba%a6%e5%ae%9a">通信约定</h1>
+        <h1 id="bci-%e9%80%9a%e4%bf%a1%e6%8a%a5%e6%96%87">BCI 通信报文</h1>
 <ul>
-<li><a href="#%e9%80%9a%e4%bf%a1%e7%ba%a6%e5%ae%9a">通信约定</a>
+<li><a href="#bci-%e9%80%9a%e4%bf%a1%e6%8a%a5%e6%96%87">BCI 通信报文</a>
 <ul>
 <li><a href="#%e8%a7%92%e8%89%b2">角色</a></li>
+<li><a href="#%e9%80%9a%e4%bf%a1%e6%96%b9%e5%bc%8f">通信方式</a></li>
+<li><a href="#%e9%80%9a%e4%bf%a1%e6%97%b6%e5%ba%8f">通信时序</a></li>
 <li><a href="#%e9%80%9a%e4%bf%a1%e8%a1%a8">通信表</a></li>
 <li><a href="#%e5%8f%91%e9%80%81%e5%8c%85">发送包</a>
 <ul>
@@ -69,12 +71,12 @@
 </thead>
 <tbody>
 <tr>
-<td>UI</td>
-<td>用户交互界面软件</td>
-</tr>
-<tr>
 <td>BCI</td>
 <td>脑机交互软件</td>
+</tr>
+<tr>
+<td>UI</td>
+<td>用户界面软件</td>
 </tr>
 <tr>
 <td>GAMER</td>
@@ -82,6 +84,16 @@
 </tr>
 </tbody>
 </table>
+<h2 id="%e9%80%9a%e4%bf%a1%e6%96%b9%e5%bc%8f">通信方式</h2>
+<ul>
+<li>采用 TCP 报文的形式进行通信。</li>
+<li>BCI 按约定的 <em>IP 地址</em> 和 <em>端口号</em> 建立 TCP 服务器。</li>
+<li>UI 和 GAMER 采用长连接的方式与 BCI 进行通信。</li>
+</ul>
+<h2 id="%e9%80%9a%e4%bf%a1%e6%97%b6%e5%ba%8f">通信时序</h2>
+<img src="file:///c:\Users\liste\Documents\distributed_workers\Messages\TimelineOffline.png" width = "600px" />
+<br/>
+<img src="file:///c:\Users\liste\Documents\distributed_workers\Messages\TimelineOnline.png" width = "600px" />
 <h2 id="%e9%80%9a%e4%bf%a1%e8%a1%a8">通信表</h2>
 <table>
 <thead>
@@ -130,13 +142,9 @@
 <p>典型通信过程：</p>
 <p>心跳包</p>
 <ol>
-<li>
-<p>A -&gt; B 心跳包</p>
-</li>
-<li>
-<p>B -&gt; A 回复心跳包</p>
-<p>(其中，A、B 为任意角色)</p>
-</li>
+<li>A -&gt; B 心跳包</li>
+<li>B -&gt; A 回复心跳包<br>
+(其中，A、B 为任意角色)</li>
 </ol>
 <p>离线游戏中，UI 要求 BCI 开始采集</p>
 <ol>
@@ -159,13 +167,9 @@
 </ol>
 <p>BCI 向其他人发送运行时错误</p>
 <ol>
-<li>
-<p>BCI -&gt; Other 运行时错误包</p>
-</li>
-<li>
-<p>Other -&gt; BCI 回复包</p>
-<p>(其中，Other 为 Gamer 或 UI)</p>
-</li>
+<li>BCI -&gt; Other 运行时错误包</li>
+<li>Other -&gt; BCI 回复包<br>
+(其中，Other 为 Gamer 或 UI)</li>
 </ol>
 <h2 id="%e5%8f%91%e9%80%81%e5%8c%85">发送包</h2>
 <h3 id="%e5%bf%83%e8%b7%b3%e5%8c%85">心跳包</h3>
@@ -236,8 +240,8 @@
 <h3 id="%e6%9f%a5%e8%af%a2%e5%8c%85">查询包</h3>
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Query"</span>,
-  <span class="hljs-attr">"chixushijian"</span>: <span class="hljs-string">"3.0"</span>,
-  <span class="hljs-attr">"zhenshibiaoqian"</span>: <span class="hljs-string">"1"</span>,
+  <span class="hljs-attr">"chixushijian"</span>: <span class="hljs-string">"3.0"</span>, // 上一个动作持续了多长时间，单位为秒
+  <span class="hljs-attr">"zhenshibiaoqian"</span>: <span class="hljs-string">"1"</span>, // 上一个动作的真实标签
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
@@ -276,7 +280,14 @@
 <p>代表执行时遇到错误。<br>
 在 detail 字段中，应含有简要描述。</p>
 <h3 id="%e7%8a%b6%e6%80%81%e9%94%99%e8%af%af">状态错误</h3>
-<p>代表运行状态错误，如重复开始采集、重复停止采集等。</p>
+<p>代表运行状态错误，包括但不限于：</p>
+<ul>
+<li>重复开始采集</li>
+<li>重复停止采集</li>
+<li>实验过程中要求建模</li>
+<li>离线实验过程中要求查询标签</li>
+<li>在线实验未开始时要求查询标签</li>
+</ul>
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"RuntimeError"</span>,
   <span class="hljs-attr">"type"</span>: <span class="hljs-string">"StateError"</span>,
