@@ -113,8 +113,7 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Offline",
   "cmd": "kaishicaiji",
-  "subjectid": "name-001",
-  "sessionid": "motion-001",
+  "shujumulu": "\\", // 数据目录，离线数据将存在这里
   "timestamp": "1585297645.123"
 }
 ```
@@ -135,7 +134,8 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Offline",
   "cmd": "jianmo",
-  "shujulujing": "\\folder1\\folder2\\datafolder\\",
+  "shujumulu": "\\", // 数据目录，请确保目录里只包含离线数据
+  "moxingmulu": "\\", // 模型目录，训练出的模型会存在这里
   "timestamp": "1585297645.123"
 }
 ```
@@ -146,8 +146,9 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Offline",
   "cmd": "zhunquelv",
-  "moxinglujing": "\\folder1\\folder2\\modefile",
-  "zhunquelv": "0.95",
+  "moxinglujing": "\\", // 模型路径
+  "shujulujing": "\\", // 数据路径，后面的准确率是根据该模型和数据计算出来的
+  "zhunquelv": "0.95", // 准确率
   "timestamp": "1585297645.123"
 }
 ```
@@ -160,7 +161,7 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Online",
   "cmd": "kaishicaiji",
-  "moxinglujing": "\\folder1\\folder2\\modefile",
+  "moxinglujing": "\\", // 模型路径，请确保该路径指向模型文件
   "timestamp": "1585297645.123"
 }
 ```
@@ -181,7 +182,8 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Online",
   "cmd": "zhunquelv",
-  "zhunquelv": "0.85",
+  "moxinglujing": "\\", // 模型路径，后面的准确率是根据该模型和在线数据计算出来的
+  "zhunquelv": "0.85", // 准确率
   "timestamp": "1585297645.123"
 }
 ```
@@ -193,8 +195,8 @@ BCI 向其他人发送运行时错误
 ```json
 {
   "mode": "Query",
-  "chixushijian": "3.0", // 上一个动作持续了多长时间，单位为秒
-  "zhenshibiaoqian": "1", // 上一个动作的真实标签
+  "chixushijian": "3.0", // 上一个动作持续了多长时间，单位为秒，3.0是例子
+  "zhenshibiaoqian": "1", // 上一个动作的真实标签，1是例子
   "timestamp": "1585297645.123"
 }
 ```
@@ -204,7 +206,7 @@ BCI 向其他人发送运行时错误
 ```json
 {
   "mode": "QueryReply",
-  "gujibiaoqian": "1",
+  "gujibiaoqian": "1", // 上一个动作的预测标签，1是例子
   "timestamp": "1585297645.123"
 }
 ```
