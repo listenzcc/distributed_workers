@@ -183,8 +183,7 @@
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Offline"</span>,
   <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"kaishicaiji"</span>,
-  <span class="hljs-attr">"subjectid"</span>: <span class="hljs-string">"name-001"</span>,
-  <span class="hljs-attr">"sessionid"</span>: <span class="hljs-string">"motion-001"</span>,
+  <span class="hljs-attr">"shujumulu"</span>: <span class="hljs-string">"\\"</span>, // 数据目录，离线数据将存在这里
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
@@ -199,7 +198,8 @@
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Offline"</span>,
   <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"jianmo"</span>,
-  <span class="hljs-attr">"shujulujing"</span>: <span class="hljs-string">"\\folder1\\folder2\\datafolder\\"</span>,
+  <span class="hljs-attr">"shujumulu"</span>: <span class="hljs-string">"\\"</span>, // 数据目录，请确保目录里只包含离线数据
+  <span class="hljs-attr">"moxingmulu"</span>: <span class="hljs-string">"\\"</span>, // 模型目录，训练出的模型会存在这里
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
@@ -207,8 +207,9 @@
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Offline"</span>,
   <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"zhunquelv"</span>,
-  <span class="hljs-attr">"moxinglujing"</span>: <span class="hljs-string">"\\folder1\\folder2\\modefile"</span>,
-  <span class="hljs-attr">"zhunquelv"</span>: <span class="hljs-string">"0.95"</span>,
+  <span class="hljs-attr">"moxinglujing"</span>: <span class="hljs-string">"\\"</span>, // 模型路径
+  <span class="hljs-attr">"shujulujing"</span>: <span class="hljs-string">"\\"</span>, // 数据路径，后面的准确率是根据该模型和数据计算出来的
+  <span class="hljs-attr">"zhunquelv"</span>: <span class="hljs-string">"0.95"</span>, // 准确率
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
@@ -217,7 +218,7 @@
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Online"</span>,
   <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"kaishicaiji"</span>,
-  <span class="hljs-attr">"moxinglujing"</span>: <span class="hljs-string">"\\folder1\\folder2\\modefile"</span>,
+  <span class="hljs-attr">"moxinglujing"</span>: <span class="hljs-string">"\\"</span>, // 模型路径，请确保该路径指向模型文件
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
@@ -232,7 +233,8 @@
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Online"</span>,
   <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"zhunquelv"</span>,
-  <span class="hljs-attr">"zhunquelv"</span>: <span class="hljs-string">"0.85"</span>,
+  <span class="hljs-attr">"moxinglujing"</span>: <span class="hljs-string">"\\"</span>, // 模型路径，后面的准确率是根据该模型和在线数据计算出来的
+  <span class="hljs-attr">"zhunquelv"</span>: <span class="hljs-string">"0.85"</span>, // 准确率
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
@@ -240,15 +242,15 @@
 <h3 id="%e6%9f%a5%e8%af%a2%e5%8c%85">查询包</h3>
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Query"</span>,
-  <span class="hljs-attr">"chixushijian"</span>: <span class="hljs-string">"3.0"</span>, // 上一个动作持续了多长时间，单位为秒
-  <span class="hljs-attr">"zhenshibiaoqian"</span>: <span class="hljs-string">"1"</span>, // 上一个动作的真实标签
+  <span class="hljs-attr">"chixushijian"</span>: <span class="hljs-string">"3.0"</span>, // 上一个动作持续了多长时间，单位为秒，3.0是例子
+  <span class="hljs-attr">"zhenshibiaoqian"</span>: <span class="hljs-string">"1"</span>, // 上一个动作的真实标签，1是例子
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
 <h3 id="%e6%9f%a5%e8%af%a2%e7%bb%93%e6%9e%9c%e5%8c%85">查询结果包</h3>
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"QueryReply"</span>,
-  <span class="hljs-attr">"gujibiaoqian"</span>: <span class="hljs-string">"1"</span>,
+  <span class="hljs-attr">"gujibiaoqian"</span>: <span class="hljs-string">"1"</span>, // 上一个动作的预测标签，1是例子
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
