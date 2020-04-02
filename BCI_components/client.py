@@ -56,11 +56,6 @@ def send(client, msg):
     logger.debug(f'Client sent {msg}')
 
 
-send(client,
-     dict(mode='Offline',
-          cmd='kaishicaiji',
-          timestamp=time.time()))
-
 if __name__ == '__main__':
     """ Control interface. """
     while True:

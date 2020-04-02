@@ -140,15 +140,20 @@ class Client():
                     logger.debug(f'{D} triggers no workload')
                     continue
 
-                self.send(rtreply.OK())
+                try:
+                    eval(f'worker.{workload}(**D, send=self.send)')
+                except:
+                    self.send(rtreply.ParseError())
+
+                # self.send(rtreply.OK())
 
             except:
                 traceback.print_exc()
                 # Close the client
                 self.client.close()
-                self.onclose()
                 # Stop listening
                 break
+        self.onclose()
         logger.info(f'Connection closed {self.client}.')
 
 
