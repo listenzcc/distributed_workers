@@ -1,8 +1,9 @@
 import os
+import time
 
-for cmd in [
-    'server.py',
-    'client_offline.py',
-    # 'client.py'
-]:
-    os.system(f'start python {cmd}')
+os.system('start python server.py')
+
+os.system('start python client_offline.py')
+input('Offline finished')
+
+os.system('start python client_online.py')

@@ -3,9 +3,8 @@ import os
 import time
 import json
 import threading
-from profile import logger
 
-from client import new_client, listen, shutdown
+from client import new_client, listen, shutdown, logger
 
 
 client = new_client()
@@ -24,6 +23,9 @@ def send(msg, client=client):
 
 
 if __name__ == '__main__':
+    subjectID = 'Subject00'
+    sessionID = f'motion00-{time.time()}'
+
     for _ in range(3):
         send(dict(mode='keepalive',
                   timestamp=time.time()))
@@ -39,7 +41,7 @@ if __name__ == '__main__':
     send(dict(mode='Offline',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  'DataShop', 'Subject01', 'Data', str(time.time())),
+                  'DataShop', subjectID, 'Data', sessionID),
               timestamp=time.time()))
     time.sleep(0.5)
 
@@ -47,7 +49,7 @@ if __name__ == '__main__':
     send(dict(mode='Offline',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  'DataShop', 'Subject01', 'Data', str(time.time())),
+                  'DataShop', subjectID, 'Data', sessionID),
               timestamp=time.time()))
     time.sleep(0.5)
 
@@ -60,9 +62,10 @@ if __name__ == '__main__':
     # Correct package, build model
     send(dict(mode='Offline',
               cmd='jianmo',
-              shujulujing=os.path.join('DataShop', 'Subject01', 'Data'),
+              shujulujing=os.path.join(
+                  'DataShop', subjectID, 'Data', f'{sessionID}.cnt'),
               moxinglujingqianzhui=os.path.join(
-                  'DataShop', 'Subject01', 'Model', str(time.time())),
+                  'DataShop', subjectID, 'Model', sessionID),
               timestamp=time.time()))
     time.sleep(0.5)
 
