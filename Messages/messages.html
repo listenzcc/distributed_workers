@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>BCI 通信报文</title>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        
+    </head>
+    <body class="vscode-light">
+        <h1 id="bci-%e9%80%9a%e4%bf%a1%e6%8a%a5%e6%96%87">BCI 通信报文</h1>
+<ul>
+<li><a href="#bci-%e9%80%9a%e4%bf%a1%e6%8a%a5%e6%96%87">BCI 通信报文</a>
+<ul>
+<li><a href="#%e8%a7%92%e8%89%b2">角色</a></li>
+<li><a href="#%e9%80%9a%e4%bf%a1%e6%96%b9%e5%bc%8f">通信方式</a></li>
+<li><a href="#%e9%80%9a%e4%bf%a1%e6%97%b6%e5%ba%8f">通信时序</a></li>
+<li><a href="#%e9%80%9a%e4%bf%a1%e8%a1%a8">通信表</a></li>
+<li><a href="#%e5%8f%91%e9%80%81%e5%8c%85">发送包</a>
+<ul>
+<li><a href="#%e5%bf%83%e8%b7%b3%e5%8c%85">心跳包</a></li>
+<li><a href="#%e5%bc%80%e5%a7%8b%e7%a6%bb%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">开始离线采集包</a></li>
+<li><a href="#%e7%bb%93%e6%9d%9f%e7%a6%bb%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">结束离线采集包</a></li>
+<li><a href="#%e5%bb%ba%e6%a8%a1%e5%8c%85">建模包</a></li>
+<li><a href="#%e6%a8%a1%e5%9e%8b%e5%87%86%e7%a1%ae%e7%8e%87%e5%8c%85">模型准确率包</a></li>
+<li><a href="#%e5%bc%80%e5%a7%8b%e5%9c%a8%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">开始在线采集包</a></li>
+<li><a href="#%e7%bb%93%e6%9d%9f%e5%9c%a8%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">结束在线采集包</a></li>
+<li><a href="#%e5%9c%a8%e7%ba%bf%e5%87%86%e7%a1%ae%e7%8e%87%e5%8c%85">在线准确率包</a></li>
+<li><a href="#%e6%9f%a5%e8%af%a2%e5%8c%85">查询包</a></li>
+<li><a href="#%e6%9f%a5%e8%af%a2%e7%bb%93%e6%9e%9c%e5%8c%85">查询结果包</a></li>
+</ul>
+</li>
+<li><a href="#%e5%9b%9e%e5%a4%8d%e5%8c%85">回复包</a>
+<ul>
+<li><a href="#%e5%9b%9e%e5%a4%8d%e5%bf%83%e8%b7%b3%e5%8c%85">回复心跳包</a></li>
+<li><a href="#%e5%9b%9e%e5%a4%8d%e8%83%bd%e5%a4%9f%e8%a2%ab%e6%ad%a3%e7%a1%ae%e8%af%86%e5%88%ab%e7%9a%84%e5%8c%85">回复能够被正确识别的包</a></li>
+<li><a href="#%e5%9b%9e%e5%a4%8d%e6%97%a0%e6%b3%95%e8%a2%ab%e6%ad%a3%e7%a1%ae%e8%af%86%e5%88%ab%e7%9a%84%e5%8c%85">回复无法被正确识别的包</a></li>
+</ul>
+</li>
+<li><a href="#%e8%bf%90%e8%a1%8c%e6%97%b6%e9%94%99%e8%af%af%e5%8c%85">运行时错误包</a>
+<ul>
+<li><a href="#%e7%8a%b6%e6%80%81%e9%94%99%e8%af%af">状态错误</a></li>
+<li><a href="#%e6%96%87%e4%bb%b6%e9%94%99%e8%af%af">文件错误</a></li>
+<li><a href="#%e8%b5%84%e6%ba%90%e5%bf%99%e9%94%99%e8%af%af">资源忙错误</a></li>
+<li><a href="#%e6%9c%aa%e5%ae%9a%e4%b9%89%e9%94%99%e8%af%af">未定义错误</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="%e8%a7%92%e8%89%b2">角色</h2>
+<table>
+<thead>
+<tr>
+<th>简称</th>
+<th>角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BCI</td>
+<td>脑机交互软件</td>
+</tr>
+<tr>
+<td>UI</td>
+<td>用户界面软件</td>
+</tr>
+<tr>
+<td>GAMER</td>
+<td>游戏软件</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%e9%80%9a%e4%bf%a1%e6%96%b9%e5%bc%8f">通信方式</h2>
+<ul>
+<li>采用 TCP 报文的形式进行通信。</li>
+<li>BCI 按约定的 <em>IP 地址</em> 和 <em>端口号</em> 建立 TCP 服务器。</li>
+<li>UI 和 GAMER 采用长连接的方式与 BCI 进行通信。</li>
+</ul>
+<h2 id="%e9%80%9a%e4%bf%a1%e6%97%b6%e5%ba%8f">通信时序</h2>
+<img src="file:///c:\Users\liste\Documents\distributed_workers\Messages\TimelineOffline.png" width = "600px" />
+<br/>
+<img src="file:///c:\Users\liste\Documents\distributed_workers\Messages\TimelineOnline.png" width = "600px" />
+<h2 id="%e9%80%9a%e4%bf%a1%e8%a1%a8">通信表</h2>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>通信方向</th>
+<th>发送包</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>离线</td>
+<td>UI -&gt; BCI</td>
+<td>心跳包，开始离线采集包，结束离线采集包，建模包</td>
+</tr>
+<tr>
+<td>离线</td>
+<td>BCI -&gt; UI</td>
+<td>心跳包，模型准确率包，运行时错误包</td>
+</tr>
+<tr>
+<td>在线</td>
+<td>UI -&gt; BCI</td>
+<td>心跳包，开始在线采集包，结束在线采集包</td>
+</tr>
+<tr>
+<td>在线</td>
+<td>BCI -&gt; UI</td>
+<td>心跳包，运行时错误包，在线准确率包（仅在在线实验结束后发送）</td>
+</tr>
+<tr>
+<td>在线</td>
+<td>GAMER -&gt; BCI</td>
+<td>心跳包，查询包</td>
+</tr>
+<tr>
+<td>在线</td>
+<td>BCI -&gt; GAMER</td>
+<td>心跳包，查询结果包，运行时错误包</td>
+</tr>
+</tbody>
+</table>
+<p>所有通信包分为<em>发送包</em>、<em>回复包</em>和<em>运行时错误包</em>三类。<br>
+收到<a href="#%E5%8F%91%E9%80%81%E5%8C%85">发送包</a>或<a href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E9%94%99%E8%AF%AF%E5%8C%85">运行时错误包</a>应立即回复<a href="#%E5%9B%9E%E5%A4%8D%E5%8C%85">回复包</a>；<br>
+收到<a href="#%E5%9B%9E%E5%A4%8D%E5%8C%85">回复包</a>无需回复。</p>
+<p>典型通信过程：</p>
+<p>心跳包</p>
+<ol>
+<li>A -&gt; B 心跳包</li>
+<li>B -&gt; A 回复心跳包<br>
+(其中，A、B 为任意角色)</li>
+</ol>
+<p>离线游戏中，UI 要求 BCI 开始采集</p>
+<ol>
+<li>UI -&gt; BCI 开始离线采集包</li>
+<li>BCI -&gt; UI 回复包</li>
+</ol>
+<p>离线游戏中，UI 要求 BCI 进行建模</p>
+<ol>
+<li>UI -&gt; BCI 建模包</li>
+<li>BCI -&gt; UI 回复包</li>
+<li>BCI -&gt; UI 模型准确率包</li>
+<li>UI -&gt; BCI 回复包</li>
+</ol>
+<p>在线游戏中，GAMER 要求 BCI 估计标签</p>
+<ol>
+<li>GAMER -&gt; BCI 查询包</li>
+<li>BCI -&gt; GAMER 回复包</li>
+<li>BCI -&gt; GAMER 查询结果包</li>
+<li>GAMER -&gt; BCI 回复包</li>
+</ol>
+<p>BCI 向其他人发送运行时错误</p>
+<ol>
+<li>BCI -&gt; Other 运行时错误包</li>
+<li>Other -&gt; BCI 回复包<br>
+(其中，Other 为 Gamer 或 UI)</li>
+</ol>
+<h2 id="%e5%8f%91%e9%80%81%e5%8c%85">发送包</h2>
+<h3 id="%e5%bf%83%e8%b7%b3%e5%8c%85">心跳包</h3>
+<p>所有通信参与者都可以定期发送心跳包。</p>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"keepalive"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e5%bc%80%e5%a7%8b%e7%a6%bb%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">开始离线采集包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Offline"</span>,
+  <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"kaishicaiji"</span>,
+  <span class="hljs-attr">"shujulujingqianzhui"</span>: <span class="hljs-string">"\\"</span>, // 数据路径前缀，离线数据将存在这里
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e7%bb%93%e6%9d%9f%e7%a6%bb%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">结束离线采集包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Offline"</span>,
+  <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"jieshucaiji"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e5%bb%ba%e6%a8%a1%e5%8c%85">建模包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Offline"</span>,
+  <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"jianmo"</span>,
+  <span class="hljs-attr">"shujulujing"</span>: <span class="hljs-string">"\\"</span>, // 数据路径，应该是一个已经存在的数据文件
+  <span class="hljs-attr">"moxinglujingqianzhui"</span>: <span class="hljs-string">"\\"</span>, // 模型路径前缀，训练出的模型会保存在这里
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e6%a8%a1%e5%9e%8b%e5%87%86%e7%a1%ae%e7%8e%87%e5%8c%85">模型准确率包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Offline"</span>,
+  <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"zhunquelv"</span>,
+  <span class="hljs-attr">"moxinglujing"</span>: <span class="hljs-string">"\\"</span>, // 模型路径，应该是一个已经存在的模型文件
+  <span class="hljs-attr">"zhunquelv"</span>: <span class="hljs-string">"0.95"</span>, // 准确率
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<hr>
+<h3 id="%e5%bc%80%e5%a7%8b%e5%9c%a8%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">开始在线采集包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Online"</span>,
+  <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"kaishicaiji"</span>,
+  <span class="hljs-attr">"shujulujingqianzhui"</span>: <span class="hljs-string">"\\"</span>, // 数据路径前缀，在线数据将存在这里
+  <span class="hljs-attr">"moxinglujing"</span>: <span class="hljs-string">"\\"</span>, // 模型路径，应该是一个已经存在的模型文件
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e7%bb%93%e6%9d%9f%e5%9c%a8%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">结束在线采集包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Online"</span>,
+  <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"jieshucaiji"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e5%9c%a8%e7%ba%bf%e5%87%86%e7%a1%ae%e7%8e%87%e5%8c%85">在线准确率包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Online"</span>,
+  <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"zhunquelv"</span>,
+  <span class="hljs-attr">"moxinglujing"</span>: <span class="hljs-string">"\\"</span>, // 模型路径，后面的准确率是根据该模型和在线数据计算出来的
+  <span class="hljs-attr">"shujulujing"</span>: <span class="hljs-string">"\\"</span>, // 在线数据的保存路径
+  <span class="hljs-attr">"zhunquelv"</span>: <span class="hljs-string">"0.85"</span>, // 准确率
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<hr>
+<h3 id="%e6%9f%a5%e8%af%a2%e5%8c%85">查询包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Query"</span>,
+  <span class="hljs-attr">"chixushijian"</span>: <span class="hljs-string">"3.0"</span>, // 上一个动作持续了多长时间，单位为秒，3.0是例子
+  <span class="hljs-attr">"zhenshibiaoqian"</span>: <span class="hljs-string">"1"</span>, // 上一个动作的真实标签，1是例子
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e6%9f%a5%e8%af%a2%e7%bb%93%e6%9e%9c%e5%8c%85">查询结果包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"QueryReply"</span>,
+  <span class="hljs-attr">"gujibiaoqian"</span>: <span class="hljs-string">"1"</span>, // 上一个动作的预测标签，1是例子
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h2 id="%e5%9b%9e%e5%a4%8d%e5%8c%85">回复包</h2>
+<h3 id="%e5%9b%9e%e5%a4%8d%e5%bf%83%e8%b7%b3%e5%8c%85">回复心跳包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Reply"</span>,
+  <span class="hljs-attr">"state"</span>: <span class="hljs-string">"keepalive"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e5%9b%9e%e5%a4%8d%e8%83%bd%e5%a4%9f%e8%a2%ab%e6%ad%a3%e7%a1%ae%e8%af%86%e5%88%ab%e7%9a%84%e5%8c%85">回复能够被正确识别的包</h3>
+<p>代表开始执行所需操作。</p>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Reply"</span>,
+  <span class="hljs-attr">"state"</span>: <span class="hljs-string">"OK"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e5%9b%9e%e5%a4%8d%e6%97%a0%e6%b3%95%e8%a2%ab%e6%ad%a3%e7%a1%ae%e8%af%86%e5%88%ab%e7%9a%84%e5%8c%85">回复无法被正确识别的包</h3>
+<p>代表无法执行任何操作。</p>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Reply"</span>,
+  <span class="hljs-attr">"state"</span>: <span class="hljs-string">"ParseError"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h2 id="%e8%bf%90%e8%a1%8c%e6%97%b6%e9%94%99%e8%af%af%e5%8c%85">运行时错误包</h2>
+<p>代表执行时遇到错误。<br>
+在 detail 字段中，应含有简要描述。</p>
+<h3 id="%e7%8a%b6%e6%80%81%e9%94%99%e8%af%af">状态错误</h3>
+<p>代表运行状态错误，包括但不限于：</p>
+<ul>
+<li>重复开始采集</li>
+<li>重复停止采集</li>
+<li>实验过程中要求建模</li>
+<li>离线实验过程中要求查询标签</li>
+<li>在线实验未开始时要求查询标签</li>
+</ul>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"RuntimeError"</span>,
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"StateError"</span>,
+  <span class="hljs-attr">"detail"</span>: <span class="hljs-string">"xxxx"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e6%96%87%e4%bb%b6%e9%94%99%e8%af%af">文件错误</h3>
+<p>代表目标文件无法获取，如无法找到、无法读取等。</p>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"RuntimeError"</span>,
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"FileError"</span>,
+  <span class="hljs-attr">"detail"</span>: <span class="hljs-string">"xxxx"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e8%b5%84%e6%ba%90%e5%bf%99%e9%94%99%e8%af%af">资源忙错误</h3>
+<p>代表后台资源忙，操作无法运行。</p>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"RuntimeError"</span>,
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"BusyError"</span>,
+  <span class="hljs-attr">"detail"</span>: <span class="hljs-string">"xxxx"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e6%9c%aa%e5%ae%9a%e4%b9%89%e9%94%99%e8%af%af">未定义错误</h3>
+<p>代表无法事先定义，但运行时发生的错误，如内存满、关键设备断开等。</p>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"RuntimeError"</span>,
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"UnknownError"</span>,
+  <span class="hljs-attr">"detail"</span>: <span class="hljs-string">"xxxx"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+
+    </body>
+    </html>

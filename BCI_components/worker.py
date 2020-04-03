@@ -2,12 +2,12 @@
 
 import os
 import time
+import threading
 from logger import Logger
-from profile import RealtimeReply, RuntimeError
+from profile import RealtimeReply, RuntimeError, logger
 
-logger = Logger(name='worker').logger
 rtreply = RealtimeReply()
-rerror = RuntimeError()
+rterror = RuntimeError()
 
 
 def mkdir(path):
@@ -34,7 +34,7 @@ def send(msg):
 def onerror(error, detail, send=send):
     """ Handle runtime errors,
     logging and send RuntimeError."""
-    logger.debug(detail)
+    logger.error(detail)
     errormsg = error(detail)
     send(errormsg)
     logger.debug(f'Sent RuntimeError: {errormsg}')
@@ -43,6 +43,10 @@ def onerror(error, detail, send=send):
 class Worker():
     def __init__(self):
         self._state = 'Busy'
+
+    def get_ready(self):
+        self._state = 'Idle'
+        logger.info('Worker is ready to go.')
 
     @property
     def state(self):
@@ -59,13 +63,24 @@ class Worker():
         if isinstance(states, str):
             states = [states]
         if not self.state in states:
-            onerror(rerror.StateError,
+            onerror(rterror.StateError,
                     f'Wrong state {self.state} for {workload}',
                     send=send)
             return 1
         return 0
 
-    def offline_kaishicaiji(self, shujumulu, timestamp=0, send=send):
+    def record(self, fpath):
+        """ Simulation of record method. """
+        logger.info('Record starts.')
+        with open(fpath, 'w') as f:
+            f.write('-' * 40 + 'starts.\n')
+            while self.state in ['Online', 'Offline']:
+                f.write(time.ctime() + '\n')
+                time.sleep(0.2)
+            f.write('-' * 40 + 'ends.\n')
+        logger.info('Record finished.')
+
+    def offline_kaishicaiji(self, shujulujingqianzhui, timestamp=0, send=send):
         # Send OK means I has got everything in need,
         # but not guartee that all the things are correct,
         # if incorrect, I will reply Error in further
@@ -75,15 +90,19 @@ class Worker():
         if self.check_state('Idle', 'offline_kaishicaiji', send=send) == 1:
             return 1
 
-        # Try to mkdir and check of {shujumulu}
+        # Try to mkdir and check of {shujulujingqianzhui}
         try:
-            mkdir(shujumulu)
+            mkdir(os.path.dirname(shujulujingqianzhui))
         except:
-            onerror(rerror.FileError, shujumulu, send=send)
+            onerror(rterror.FileError, shujulujingqianzhui, send=send)
             return 1
 
         # Workload
         self.state = 'Offline'
+        fpath = f'{shujulujingqianzhui}.cnt'
+        t = threading.Thread(target=self.record, args=(fpath,))
+        t.setDaemon(True)
+        t.start()
 
         return 0
 
@@ -99,32 +118,33 @@ class Worker():
 
         return 0
 
-    def offline_jianmo(self, shujumulu, moxingmulu, timestamp=0, send=send):
+    def offline_jianmo(self, shujulujing, moxinglujingqianzhui, timestamp=0, send=send):
         send(rtreply.OK())
 
         # The state should be 'Idle'
         if self.check_state('Idle', 'offline_jianmo', send=send) == 1:
             return 1
 
-        # todo: check shujumulu
-
+        # todo: check shujulujing
+        # Try to mkdir and check of {moxinglujingqianzhui}
         try:
-            mkdir(moxingmulu)
+            mkdir(os.path.dirname(moxinglujingqianzhui))
         except:
-            onerror(rerror.FileError, moxingmulu, send=send)
+            onerror(rterror.FileError, moxinglujingqianzhui, send=send)
             return 1
 
         # Workload
         self.state = 'Busy'
-        moxinglujing = os.path.join(moxingmulu, 'model.txt')
+        moxinglujing = moxinglujingqianzhui + '-model.txt'
         with open(moxinglujing, 'w') as f:
             f.writelines(['Hello, I am a model.\n',
-                          f'shujumulu',
-                          time.ctime()])
+                          time.ctime(),
+                          '\n------------------\n'])
+            f.write(f'{shujulujing}\n')
+            f.write('\n------------------------ends')
         send(dict(mode='Offline',
                   cmd='zhunquelv',
                   moxinglujing=moxinglujing,
-                  shujulujing=shujumulu,
                   zhunquelv='0.95',
                   timestamp=time.time()))
         self.state = 'Idle'
@@ -135,18 +155,27 @@ class Worker():
         send(rtreply.OK())
 
         # todo: check moxinglujing
+        if not os.path.exists(os.path.dirname(moxinglujing)):
+            onerror(rterror.FileError, moxinglujing, send=send)
 
+        # The state should be 'Idle'
         if self.check_state('Idle', 'online_kaishicaiji', send=send) == 1:
             return 1
 
         # Workload
         self.state = 'Online'
+        fpath = os.path.join(moxinglujing, os.path.pardir,
+                             f'{time.time()}-OnlineData.txt')
+        t = threading.Thread(target=self.record, args=(fpath,))
+        t.setDaemon(True)
+        t.start()
 
         return 0
 
     def online_jieshucaiji(self, timestamp=0, send=send):
         send(rtreply.OK())
 
+        # The state should be 'Online'
         if self.check_state('Online', 'online_jieshucaiji', send=send) == 1:
             return 1
 
@@ -158,6 +187,7 @@ class Worker():
     def query(self, chixushijian, zhenshibiaoqian, timestamp=0, send=send):
         send(rtreply.OK())
 
+        # The state should be 'Online'
         if self.check_state('Online', 'query', send=send) == 1:
             return 1
 
@@ -173,6 +203,7 @@ class Worker():
         return 0
 
     def keepalive(self, timestamp=0, send=send):
+        # Reply keep alive package
         send(rtreply.KeepAlive())
         return 0
 

@@ -113,7 +113,7 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Offline",
   "cmd": "kaishicaiji",
-  "shujumulu": "\\", // 数据目录，离线数据将存在这里
+  "shujulujingqianzhui": "\\", // 数据路径前缀，离线数据将存在这里
   "timestamp": "1585297645.123"
 }
 ```
@@ -134,8 +134,8 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Offline",
   "cmd": "jianmo",
-  "shujumulu": "\\", // 数据目录，请确保目录里只包含离线数据
-  "moxingmulu": "\\", // 模型目录，训练出的模型会存在这里
+  "shujulujing": "\\", // 数据路径，应该是一个已经存在的数据文件
+  "moxinglujingqianzhui": "\\", // 模型路径前缀，训练出的模型会保存在这里
   "timestamp": "1585297645.123"
 }
 ```
@@ -146,8 +146,7 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Offline",
   "cmd": "zhunquelv",
-  "moxinglujing": "\\", // 模型路径
-  "shujulujing": "\\", // 数据路径，后面的准确率是根据该模型和数据计算出来的
+  "moxinglujing": "\\", // 模型路径，应该是一个已经存在的模型文件
   "zhunquelv": "0.95", // 准确率
   "timestamp": "1585297645.123"
 }
@@ -161,7 +160,8 @@ BCI 向其他人发送运行时错误
 {
   "mode": "Online",
   "cmd": "kaishicaiji",
-  "moxinglujing": "\\", // 模型路径，请确保该路径指向模型文件
+  "shujulujingqianzhui": "\\", // 数据路径前缀，在线数据将存在这里
+  "moxinglujing": "\\", // 模型路径，应该是一个已经存在的模型文件
   "timestamp": "1585297645.123"
 }
 ```
@@ -183,6 +183,7 @@ BCI 向其他人发送运行时错误
   "mode": "Online",
   "cmd": "zhunquelv",
   "moxinglujing": "\\", // 模型路径，后面的准确率是根据该模型和在线数据计算出来的
+  "shujulujing": "\\", // 在线数据的保存路径
   "zhunquelv": "0.85", // 准确率
   "timestamp": "1585297645.123"
 }

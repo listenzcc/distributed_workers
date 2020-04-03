@@ -4,11 +4,11 @@ import json
 import socket
 import threading
 import traceback
-from logger import Logger
 from worker import Worker
-from profile import IP, PORT, BUF_SIZE, RealtimeReply
+from profile import IP, PORT, BUF_SIZE, logger, RealtimeReply
 
-logger = Logger(name='server').logger
+logger.info('---- New Session ----')
+
 worker = Worker()
 rtreply = RealtimeReply()
 
@@ -53,22 +53,24 @@ class Server():
     def maintain_clients(self):
         """ Maintain clients pool. """
         while True:
-            client = Client(client=self.new_client())
+            c, a = self.new_client()
+            client = Client(client=c, address=a)
             self.clientpool.append(client)
-            logger.info(f'New client accepted {client}')
+            logger.info(f'New client accepted {a}')
 
     def new_client(self):
         """ Accept new incoming client. """
         client, address = self.server.accept()
-        return client
+        return client, address
 
 
 class Client():
-    def __init__(self, client, onclose=None):
-        """ Start [client] for listening,
-        [onclose] is a function that will be called when client is closed."""
+    def __init__(self, client, address, onclose=None):
+        """ Start {client} for listening at {address},
+        {onclose} is a function that will be called when client is closed."""
         # Setup client and onclose handler
         self.client = client
+        self.address = address
         if onclose is None:
             self.onclose = self.default_onclose
         else:
@@ -77,7 +79,7 @@ class Client():
         t = threading.Thread(target=self.listening)
         t.setDaemon(True)
         t.start()
-        logger.info(f'New client started {self.client}')
+        logger.info(f'New client started {self.address}')
 
     def default_onclose(self):
         """ Default onclose handler. """
@@ -94,14 +96,14 @@ class Client():
         if isinstance(msg, str):
             msg = msg.encode('utf-8')
         self.client.sendall(msg)
-        logger.debug(f'Sent {msg} to {self.client}')
+        logger.info(f'Sent {msg} to {self.address}')
 
     def listening(self):
         """ Listening. """
         while True:
             try:
                 data = self.client.recv(BUF_SIZE)
-                logger.info(f'Received {data}, from {self.client}')
+                logger.info(f'Received {data}, from {self.address}')
                 # If empty package received, it means the client to be closed.
                 assert(not data == b'')
                 # todo: Handle data received event.
@@ -110,25 +112,25 @@ class Client():
                     D = json.loads(data.decode())
                 except:
                     self.send(rtreply.ParseError())
-                    logger.debug(f'{data} can not be loaded by JSON')
+                    logger.error(f'{data} can not be loaded by JSON')
                     continue
-                print(D)
+                # print(D)
                 # Make sure D is legal
                 # D is dict
                 if not isinstance(D, dict):
                     self.send(rtreply.ParseError())
-                    logger.debug(f'{D} is not dict')
+                    logger.error(f'{D} is not dict')
                     continue
                 # D contains timestamp
                 if 'timestamp' not in D:
                     self.send(rtreply.ParseError())
-                    logger.debug(f'{D} contains no timestamp')
+                    logger.error(f'{D} contains no timestamp')
                     continue
                 logger.debug('Delay is {}'.format(delay(D['timestamp'])))
                 # D contains mode, [cmd], and worker can deal with them
                 if 'mode' not in D:
                     self.send(rtreply.ParseError())
-                    logger.debug(f'{D} contains no mode')
+                    logger.error(f'{D} contains no mode')
                     continue
 
                 if 'cmd' in D:
@@ -137,12 +139,19 @@ class Client():
                     workload = '{mode}'.format(**D).lower()
                 if not hasattr(worker, workload):
                     self.send(rtreply.ParseError())
-                    logger.debug(f'{D} triggers no workload')
+                    logger.error(f'{D} triggers no workload')
                     continue
 
+                D.pop('mode')
+                D.pop('cmd', None)
+
+                logger.debug(f'Workload starts {workload}')
                 try:
                     eval(f'worker.{workload}(**D, send=self.send)')
                 except:
+                    logger.error(
+                        f'Something went wrong in workload {workload}')
+                    logger.debug(traceback.format_exc())
                     self.send(rtreply.ParseError())
 
                 # self.send(rtreply.OK())
@@ -159,6 +168,7 @@ class Client():
 
 if __name__ == '__main__':
     server = Server()
+    worker.get_ready()
     server.starts()
     while True:
         msg = input('>> ')

@@ -1,9 +1,13 @@
 """ BCI profiles """
+import os
 import time
+from logger import Logger
 
 IP = 'localhost'
 PORT = 63365
 BUF_SIZE = 1024
+
+logger = Logger(name='BCI', filepath=os.path.join('BCI.log')).logger
 
 
 def stamp(d):
