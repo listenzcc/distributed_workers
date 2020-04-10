@@ -38,6 +38,7 @@
 <li><a href="#%e6%a8%a1%e5%9e%8b%e5%87%86%e7%a1%ae%e7%8e%87%e5%8c%85">模型准确率包</a></li>
 <li><a href="#%e5%bc%80%e5%a7%8b%e5%9c%a8%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">开始在线采集包</a></li>
 <li><a href="#%e7%bb%93%e6%9d%9f%e5%9c%a8%e7%ba%bf%e9%87%87%e9%9b%86%e5%8c%85">结束在线采集包</a></li>
+<li><a href="#%e8%bf%90%e5%8a%a8%e6%8c%87%e4%bb%a4%e5%8c%85">运动指令包</a></li>
 <li><a href="#%e5%9c%a8%e7%ba%bf%e5%87%86%e7%a1%ae%e7%8e%87%e5%8c%85">在线准确率包</a></li>
 <li><a href="#%e6%9f%a5%e8%af%a2%e5%8c%85">查询包</a></li>
 <li><a href="#%e6%9f%a5%e8%af%a2%e7%bb%93%e6%9e%9c%e5%8c%85">查询结果包</a></li>
@@ -122,7 +123,7 @@
 <tr>
 <td>在线</td>
 <td>BCI -&gt; UI</td>
-<td>心跳包，运行时错误包，在线准确率包（仅在在线实验结束后发送）</td>
+<td>心跳包，运动指令包，运行时错误包，在线准确率包（仅在在线实验结束后发送）</td>
 </tr>
 <tr>
 <td>在线</td>
@@ -226,6 +227,13 @@
 <pre><code class="language-json"><div>{
   <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Online"</span>,
   <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"jieshucaiji"</span>,
+  <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
+}
+</div></code></pre>
+<h3 id="%e8%bf%90%e5%8a%a8%e6%8c%87%e4%bb%a4%e5%8c%85">运动指令包</h3>
+<pre><code class="language-json"><div>{
+  <span class="hljs-attr">"mode"</span>: <span class="hljs-string">"Online"</span>,
+  <span class="hljs-attr">"cmd"</span>: <span class="hljs-string">"kaishiyundong"</span>,
   <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"1585297645.123"</span>
 }
 </div></code></pre>
