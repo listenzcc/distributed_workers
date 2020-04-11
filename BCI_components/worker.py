@@ -6,12 +6,20 @@ import threading
 from logger import Logger
 from profile import RealtimeReply, RuntimeError, logger
 
-rtreply = RealtimeReply()
-rterror = RuntimeError()
+# Real-time reply instance
+real_time_reply = RealtimeReply()
+# runtime error instance
+runtime_error = RuntimeError()
 
 
 def mkdir(path):
-    """ Safety mkdir as [path] """
+    """Recursive (safe) mkdir function,
+    use 1: Create [path],
+    use 2: Check [path] is an already existing dir
+
+    Arguments:
+        path {str} -- Path to be created, it should be a legal dir path.
+    """
     # Mkdir if not exists
     if not os.path.exists(path):
         s = os.path.split(path)
@@ -27,32 +35,64 @@ def mkdir(path):
 
 def send(msg):
     """ Virtual sending method,
-    used when sending method is not provided."""
+    used when sending method is not provided.
+
+    Arguments:
+        msg {object} -- Message to be recorded.
+    """
     logger.debug(f'Virtual send {msg}')
 
 
 def onerror(error, detail, send=send):
     """ Handle runtime errors,
-    logging and send RuntimeError."""
+    logging and send RuntimeError,
+    normally THIS should be followed by return 1.
+
+    Arguments:
+        error {RuntimeError func} -- Method for RuntimeError instance
+        detail {object} -- Detail of the error.
+        send {func} -- Send function to be used for Error report. (default: {send})
+    """
     logger.error(detail)
+    # Load [detail] into [error]
     errormsg = error(detail)
+    # Send [errormsg]
     send(errormsg)
     logger.debug(f'Sent RuntimeError: {errormsg}')
 
 
 class Worker():
+    """Worker for operations. """
+
     def __init__(self):
+        # The current STATE
         self._state = 'Busy'
+        # The labels of known motion
         self._labels = []
 
-    def get_ready(self, moxinglujing=None, shujulujing=None):
-        self._state = 'Idle'
+    def get_ready(self, state='Idle', moxinglujing=None, shujulujing=None):
+        """Get ready for comming operation,
+        switch STATE into 'Idle',
+        empty LABELS.
+
+        Keyword Arguments:
+            state {str} -- Witch STATE will be set. (default: {'Idle'})
+            moxinglujing {str} -- The path of model. (default: {None})
+            shujulujing {str} -- The path of data. (default: {None})
+        """
+
+        self._state = state
         self._labels = []
         self.moxinglujing = moxinglujing
         self.shujulujing = shujulujing
-        logger.info('Worker is ready to go.')
+        logger.info(f'Worker is ready to go, {state}.')
 
     def accuracy(self):
+        """Calculate accuracy based on LABEL
+
+        Returns:
+            {float} -- accuracy
+        """
         total = len(self.labels)
         correct = len([e for e in self.labels if e[0] == e[1]])
         return correct / total
@@ -67,63 +107,118 @@ class Worker():
 
     @state.setter
     def state(self, s):
+        """Safe switch STATE into [s]
+
+        Arguments:
+            s {str} -- The name of new state, one from ['Idle', 'Busy', 'Online', 'Offline']
+        """
         assert(s in ['Idle', 'Busy', 'Online', 'Offline'])
         if not s == self._state:
             self._state = s
             logger.info(f'State switched to {s}.')
 
     def check_state(self, states, workload, send=send):
+        """Check wether current state is in [states]
+
+        Arguments:
+            states {str} or {list} -- Legal states
+            workload {str} -- Name of workload, used for potential onerror message
+
+        Keyword Arguments:
+            send {func} -- Send function to be used for onerror (default: {send})
+
+        Returns:
+            {int} -- 0 for correct, 1 for error
+        """
+        # Make sure states is iterable
         if isinstance(states, str):
             states = [states]
-        if not self.state in states:
-            onerror(rterror.StateError,
+        # If current state is not in states,
+        # means incorrect,
+        # send error message.
+        if self.state in states:
+            return 0
+        else:
+            onerror(runtime_error.StateError,
                     f'Wrong state {self.state} for {workload}',
                     send=send)
             return 1
-        return 0
 
-    def record(self, fpath, model_msg=''):
-        """ Simulation of record method. """
+    def record(self, path, model_msg=''):
+        """Start data record
+
+        Arguments:
+            path {str} -- The path of data file
+
+        Keyword Arguments:
+            model_msg {str} -- Model information, if model is available (ONLINE record) (default: {''})
+        """
         logger.info('Record starts.')
-        logger.debug(f'Record fpath is {fpath}')
-        with open(fpath, 'w') as f:
+        logger.debug(f'Record path starts in {path}')
+        # Record one line every 0.1 seconds,
+        # until STATE is switched to 'Idle' again.
+        with open(path, 'w') as f:
             f.write(f'{model_msg}\n')
             f.write('-' * 40 + 'starts.\n')
+            # Record until STATE is switched to 'Idle'
             while self.state not in ['Idle']:
-                f.write(time.ctime() + '\n')
-                time.sleep(0.2)
+                f.write('{} - {}\n'.format(time.time(), time.ctime()))
+                time.sleep(0.1)
             f.write('-' * 40 + 'ends.\n')
+        logger.debug(f'Record path stops in {path}')
         logger.info('Record finished.')
 
     def offline_kaishicaiji(self, shujulujingqianzhui, timestamp=0, send=send):
+        """Start offline collection
+
+        Arguments:
+            shujulujingqianzhui {str} -- The prefix of data path, '.cnt' will be added for real data path
+
+        Keyword Arguments:
+            timestamp {int} -- [description] (default: {0})
+            send {func} -- Sending method (default: {send})
+
+        Returns:
+            {int} -- 0 for success, 1 for fail
+        """
         # Send OK means I has got everything in need,
         # but not guartee that all the things are correct,
         # if incorrect, I will reply Error in further
-        send(rtreply.OK())
+        send(real_time_reply.OK())
 
         # The state should be 'Idle'
         if self.check_state('Idle', 'offline_kaishicaiji', send=send) == 1:
             return 1
 
-        # Try to mkdir and check of {shujulujingqianzhui}
+        # Try to mkdir and check of [shujulujingqianzhui] dir
         try:
             mkdir(os.path.dirname(shujulujingqianzhui))
         except:
-            onerror(rterror.FileError, shujulujingqianzhui, send=send)
+            onerror(runtime_error.FileError, shujulujingqianzhui, send=send)
             return 1
 
         # Workload
-        self.get_ready()
-        self.state = 'Offline'
-        fpath = f'{shujulujingqianzhui}.cnt'
-        t = threading.Thread(target=self.record, args=(fpath,))
+        self.get_ready(state='Offline')
+        path = f'{shujulujingqianzhui}.cnt'
+        # Start self.record function as separate daemon threading
+        t = threading.Thread(target=self.record, args=(path,))
         t.setDaemon(True)
         t.start()
 
+        logger.debug('Started offline collection.')
         return 0
 
     def offline_jieshucaiji(self, timestamp=0, send=send):
-        send(rtreply.OK())
+        """Stop offline collection
+
+        Keyword Arguments:
+            timestamp {int} -- [description] (default: {0})
+            send {func} -- Sending method (default: {send})
+
+        Returns:
+            {int} -- 0 means success, 1 means fail
+        """
+        send(real_time_reply.OK())
 
         # The state should be 'Offline'
         if self.check_state('Offline', 'offline_jieshucaiji', send=send) == 1:
@@ -132,10 +227,24 @@ class Worker():
         # workload
         self.state = 'Idle'
 
+        logger.debug('Stopped offline collection.')
         return 0
 
     def offline_jianmo(self, shujulujing, moxinglujingqianzhui, timestamp=0, send=send):
-        send(rtreply.OK())
+        """Start building model for offline data
+
+        Arguments:
+            shujulujing {str} -- The offline data
+            moxinglujingqianzhui {str} -- The prefix of model path, '.mat' will be added for real mpdel path
+
+        Keyword Arguments:
+            timestamp {int} -- [description] (default: {0})
+            send {func} -- Sending method (default: {send})
+
+        Returns:
+            {int} -- 0 means success, 1 means fail
+        """
+        send(real_time_reply.OK())
 
         # The state should be 'Idle'
         if self.check_state('Idle', 'offline_jianmo', send=send) == 1:
@@ -143,46 +252,66 @@ class Worker():
 
         # Check {shujulujing}
         if not os.path.exists(shujulujing):
-            onerror(rterror.FileError, shujulujing, send=send)
+            onerror(runtime_error.FileError, shujulujing, send=send)
             return 1
 
-        # Try to mkdir and check of {moxinglujingqianzhui}
+        # Try to mkdir and check of [moxinglujingqianzhui]
         try:
             mkdir(os.path.dirname(moxinglujingqianzhui))
         except:
-            onerror(rterror.FileError, moxinglujingqianzhui, send=send)
+            onerror(runtime_error.FileError, moxinglujingqianzhui, send=send)
             return 1
 
         # Workload
         self.state = 'Busy'
         moxinglujing = f'{moxinglujingqianzhui}.mat'
-        with open(moxinglujing, 'w') as f:
-            f.writelines(['Hello, I am a model.\n',
-                          time.ctime(),
-                          '\n------------------\n'])
-            f.write(f'{shujulujing}\n')
-            f.write('\n------------------------ends')
+        try:
+            with open(moxinglujing, 'w') as f:
+                f.writelines(['Hello, I am a model.\n',
+                              time.ctime(),
+                              '\n------------------\n'])
+                f.write(f'{shujulujing}\n')
+                f.write('\n------------------------ends')
+        except Exception as e:
+            onerror(runtime_error.FileError, e, send=send)
+        finally:
+            self.state = 'Idle'
+
         send(dict(mode='Offline',
                   cmd='zhunquelv',
                   moxinglujing=moxinglujing,
                   zhunquelv='0.95',
                   timestamp=time.time()))
-        self.state = 'Idle'
 
+        logger.debug(f'Built model based on {shujulujing}, model has been saved in {moxinglujing}.')
         return 0
 
     def online_kaishicaiji(self, moxinglujing, shujulujingqianzhui, timestamp=0, send=send):
-        send(rtreply.OK())
+        """Start Online collection
+
+        Arguments:
+            moxinglujing {str} -- The path of model, it should be an existing path
+            shujulujingqianzhui {str} -- The prefix of data path, '.cnt' will be added in real data path
+
+        Keyword Arguments:
+            timestamp {int} -- [description] (default: {0})
+            send {func} -- Sending method (default: {send})
+
+        Returns:
+            {int} -- 0 for success, 1 for fail
+        """
+        send(real_time_reply.OK())
 
         # Check moxinglujing
         if not os.path.exists(os.path.dirname(moxinglujing)):
-            onerror(rterror.FileError, moxinglujing, send=send)
+            onerror(runtime_error.FileError, moxinglujing, send=send)
+            return 1
 
         # Try to mkdir and check of {shujulujingqianzhui}
         try:
             mkdir(os.path.dirname(shujulujingqianzhui))
         except:
-            onerror(rterror.FileError, shujulujingqianzhui, send=send)
+            onerror(runtime_error.FileError, shujulujingqianzhui, send=send)
             return 1
 
         # The state should be 'Idle'
@@ -190,26 +319,38 @@ class Worker():
             return 1
 
         # Workload
-        fpath = f'{shujulujingqianzhui}.cnt'
-        self.get_ready(moxinglujing=moxinglujing,
-                       shujulujing=fpath)
-        self.state = 'Online'
-        t = threading.Thread(target=self.record, args=(fpath, moxinglujing))
+        path = f'{shujulujingqianzhui}.cnt'
+        self.get_ready(state='Online',
+                       moxinglujing=moxinglujing,
+                       shujulujing=path)
+        # Start daemon thread for data collection and start it
+        t = threading.Thread(target=self.record, args=(path, moxinglujing))
         t.setDaemon(True)
         t.start()
 
+        logger.debug('Started online collection.')
         return 0
 
     def online_jieshucaiji(self, timestamp=0, send=send):
-        send(rtreply.OK())
+        """Stop online collection
+        
+        Keyword Arguments:
+            timestamp {int} -- [description] (default: {0})
+            send {func} -- Sending method (default: {send})
+        
+        Returns:
+            {int} -- 0 for success, 1 for fail
+        """
+        send(real_time_reply.OK())
 
         # The state should be 'Online'
         if self.check_state('Online', 'online_jieshucaiji', send=send) == 1:
             return 1
 
         # Workload
+        # Calculate accuracy
         zhunquelv = self.accuracy()
-        logger.debug(f'Accuracy is {zhunquelv}')
+        logger.debug(f'Accuracy is {zhunquelv}, labels is {self.labels}.')
         send(dict(mode='Online',
                   cmd='zhunquelv',
                   zhunquelv=zhunquelv,
@@ -218,10 +359,24 @@ class Worker():
                   timestamp=time.time()))
         self.state = 'Idle'
 
+        logger.debug('Stopped online collection.')
         return 0
 
     def query(self, chixushijian, zhenshibiaoqian, timestamp=0, send=send):
-        send(rtreply.OK())
+        """Answer for query package during ONLINE collection
+        
+        Arguments:
+            chixushijian {float} -- Duration of the lastest motion
+            zhenshibiaoqian {str} -- True label of motion (image or actural motion)
+        
+        Keyword Arguments:
+            timestamp {int} -- [description] (default: {0})
+            send {func} -- Sending method (default: {send})
+        
+        Returns:
+            {int} -- 0 for success, 1 for fail
+        """        
+        send(real_time_reply.OK())
 
         # The state should be 'Online'
         if self.check_state('Online', 'query', send=send) == 1:
@@ -229,8 +384,9 @@ class Worker():
 
         # Workload
         self.state = 'Busy'
-        # Guess label
-        gujibiaoqian = "1"
+        # Guess label, always return '1' for now
+        # todo: Estimate label from real data
+        gujibiaoqian = '1'
         self.labels.append((gujibiaoqian, zhenshibiaoqian))
         logger.debug(f'Labels is {self.labels}')
         send(dict(mode='QueryReply',
@@ -238,11 +394,23 @@ class Worker():
                   timestamp=time.time()))
         self.state = 'Online'
 
+        logger.debug('Responded to query package')
         return 0
 
     def keepalive(self, timestamp=0, send=send):
+        """Answer keep-alive package
+        
+        Keyword Arguments:
+            timestamp {int} -- [description] (default: {0})
+            send {func} -- Sending method (default: {send})
+        
+        Returns:
+            {int} -- 0 means success, 1 means fail
+        """        
         # Reply keep alive package
-        send(rtreply.KeepAlive())
+        send(real_time_reply.KeepAlive())
+
+        logger.debug(f'Responded to KeepAlive package.')
         return 0
 
 
