@@ -29,7 +29,7 @@ class Logger():
         # Add file handler
         self.add_file_handler(level=logging.DEBUG, pattern=pattern,
                               filepath=filepath, encoding=encoding,
-                              delay=True)
+                              delay=False)
 
     def add_stream_handler(self, level, pattern):
         """ Print logging on stdout immediately. """

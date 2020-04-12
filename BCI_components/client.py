@@ -5,9 +5,9 @@ import json
 import os
 import threading
 import traceback
-from profile import IP, PORT, BUF_SIZE
-from logger import Logger
+from profile import IP, PORT, BUF_SIZE  # , logger
 
+from logger import Logger
 logger = Logger(name='UI_GAME', filepath=os.path.join('UI_GAME.log')).logger
 
 
@@ -25,7 +25,8 @@ def listen(client):
     while True:
         try:
             data = client.recv(BUF_SIZE)
-            logger.info(f'Client received {data}')
+            name = client.getsockname()
+            logger.info(f'Client {name} received {data}')
             if data == b'':
                 raise Exception('Empty received.')
         except:

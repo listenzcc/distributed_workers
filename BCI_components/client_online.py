@@ -21,7 +21,8 @@ def send(msg, client):
     if isinstance(msg, str):
         msg = msg.encode('utf-8')
     client.sendall(msg)
-    logger.info(f'Client sent {msg}')
+    name = client.getsockname()
+    logger.info(f'Client {name} sent {msg}')
 
 
 if __name__ == '__main__':

@@ -83,7 +83,7 @@ class Worker():
             send_UI {func} -- Method of send_ui, means send to UI TCP client, to tell UI something when income TCP client may not be UI. (default: {send})
         """
 
-        self._state = state
+        self.state = state
         self._labels = []
         self.moxinglujing = moxinglujing
         self.shujulujing = shujulujing
@@ -119,6 +119,7 @@ class Worker():
         if not s == self._state:
             self._state = s
             logger.info(f'State switched to {s}.')
+            logger.debug(f'State switched to {s}.')
 
     def check_state(self, states, workload, send=send):
         """Check wether current state is in [states]
@@ -268,6 +269,9 @@ class Worker():
         # Workload
         self.state = 'Busy'
         moxinglujing = f'{moxinglujingqianzhui}.mat'
+
+        # todo: Building a model
+        logger.debug('Building model.')
         try:
             with open(moxinglujing, 'w') as f:
                 f.writelines(['Hello, I am a model.\n',
@@ -278,6 +282,7 @@ class Worker():
         except Exception as e:
             onerror(runtime_error.FileError, e, send=send)
         finally:
+            logger.debug('Building model done.')
             self.state = 'Idle'
 
         send(dict(mode='Offline',
@@ -362,13 +367,12 @@ class Worker():
         logger.debug(f'Accuracy is {zhunquelv}, labels is {self.labels}.')
 
         # Send accuracy back to UI as remembered
-        # todo: how to deal with UI connection broken situation?
-        self.send_UI(dict(mode='Online',
-                          cmd='zhunquelv',
-                          zhunquelv=zhunquelv,
-                          moxinglujing=self.moxinglujing,
-                          shujulujing=self.shujulujing,
-                          timestamp=time.time()))
+        send(dict(mode='Online',
+                  cmd='zhunquelv',
+                  zhunquelv=zhunquelv,
+                  moxinglujing=self.moxinglujing,
+                  shujulujing=self.shujulujing,
+                  timestamp=time.time()))
         self.state = 'Idle'
 
         logger.debug('Stopped online collection.')
@@ -398,6 +402,7 @@ class Worker():
         self.state = 'Busy'
         # Guess label, always return '1' for now
         # todo: Estimate label from real data
+        logger.debug('Estimating label.')
         gujibiaoqian = '1'
         self.labels.append((gujibiaoqian, zhenshibiaoqian))
         logger.debug(
