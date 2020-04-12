@@ -94,8 +94,7 @@ class Server():
 
 
 class Client():
-    """Connected TCP Client
-    """
+    """Connected TCP Client """
 
     def __init__(self, client, address, onclose=None):
         """Start [client] for listening at [address],
@@ -147,6 +146,7 @@ class Client():
         # Send
         self.client.sendall(msg)
         logger.info(f'Sent {msg} to {self.address}')
+        logger.debug(f'Sent {msg} to {self.address}')
 
     def listening(self):
         """ Listen and handling incoming message """
@@ -155,6 +155,9 @@ class Client():
                 # Get data
                 data = self.client.recv(BUF_SIZE)
                 logger.info(f'Received {data}, from {self.address}')
+                logger.debug('{dash} New data received {dash}'.format(
+                    dash='-' * 8))
+                logger.debug(f'Received {data}, from {self.address}')
 
                 # If empty package received, it means the client to be closed.
                 assert(not data == b'')

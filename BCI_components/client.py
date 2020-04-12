@@ -5,7 +5,10 @@ import json
 import os
 import threading
 import traceback
-from profile import IP, PORT, BUF_SIZE, logger
+from profile import IP, PORT, BUF_SIZE
+from logger import Logger
+
+logger = Logger(name='UI_GAME', filepath=os.path.join('UI_GAME.log')).logger
 
 
 def new_client():

@@ -67,24 +67,27 @@ class Worker():
     def __init__(self):
         # The current STATE
         self._state = 'Busy'
-        # The labels of known motion
+        # The labels of estimated and true labels
         self._labels = []
 
-    def get_ready(self, state='Idle', moxinglujing=None, shujulujing=None):
+    def get_ready(self, state='Idle', moxinglujing=None, shujulujing=None, send_UI=send):
         """Get ready for comming operation,
         switch STATE into 'Idle',
-        empty LABELS.
+        empty LABELS,
+        when STATE is switch into 'Online', make sure it has a valid send_UI.
 
         Keyword Arguments:
             state {str} -- Witch STATE will be set. (default: {'Idle'})
             moxinglujing {str} -- The path of model. (default: {None})
             shujulujing {str} -- The path of data. (default: {None})
+            send_UI {func} -- Method of send_ui, means send to UI TCP client, to tell UI something when income TCP client may not be UI. (default: {send})
         """
 
         self._state = state
         self._labels = []
         self.moxinglujing = moxinglujing
         self.shujulujing = shujulujing
+        self.send_UI = send_UI
         logger.info(f'Worker is ready to go, {state}.')
 
     def accuracy(self):
@@ -283,7 +286,8 @@ class Worker():
                   zhunquelv='0.95',
                   timestamp=time.time()))
 
-        logger.debug(f'Built model based on {shujulujing}, model has been saved in {moxinglujing}.')
+        logger.debug(
+            f'Built model based on {shujulujing}, model has been saved in {moxinglujing}.')
         return 0
 
     def online_kaishicaiji(self, moxinglujing, shujulujingqianzhui, timestamp=0, send=send):
@@ -320,9 +324,14 @@ class Worker():
 
         # Workload
         path = f'{shujulujingqianzhui}.cnt'
+
+        # Remember Send-to-UI method,
+        # as Start online collection can only be triggered by UI.
         self.get_ready(state='Online',
                        moxinglujing=moxinglujing,
-                       shujulujing=path)
+                       shujulujing=path,
+                       send_UI=send)
+
         # Start daemon thread for data collection and start it
         t = threading.Thread(target=self.record, args=(path, moxinglujing))
         t.setDaemon(True)
@@ -333,11 +342,11 @@ class Worker():
 
     def online_jieshucaiji(self, timestamp=0, send=send):
         """Stop online collection
-        
+
         Keyword Arguments:
             timestamp {int} -- [description] (default: {0})
-            send {func} -- Sending method (default: {send})
-        
+            send {func} -- Sending method. (default: {send})
+
         Returns:
             {int} -- 0 for success, 1 for fail
         """
@@ -351,12 +360,15 @@ class Worker():
         # Calculate accuracy
         zhunquelv = self.accuracy()
         logger.debug(f'Accuracy is {zhunquelv}, labels is {self.labels}.')
-        send(dict(mode='Online',
-                  cmd='zhunquelv',
-                  zhunquelv=zhunquelv,
-                  moxinglujing=self.moxinglujing,
-                  shujulujing=self.shujulujing,
-                  timestamp=time.time()))
+
+        # Send accuracy back to UI as remembered
+        # todo: how to deal with UI connection broken situation?
+        self.send_UI(dict(mode='Online',
+                          cmd='zhunquelv',
+                          zhunquelv=zhunquelv,
+                          moxinglujing=self.moxinglujing,
+                          shujulujing=self.shujulujing,
+                          timestamp=time.time()))
         self.state = 'Idle'
 
         logger.debug('Stopped online collection.')
@@ -364,18 +376,18 @@ class Worker():
 
     def query(self, chixushijian, zhenshibiaoqian, timestamp=0, send=send):
         """Answer for query package during ONLINE collection
-        
+
         Arguments:
             chixushijian {float} -- Duration of the lastest motion
             zhenshibiaoqian {str} -- True label of motion (image or actural motion)
-        
+
         Keyword Arguments:
             timestamp {int} -- [description] (default: {0})
             send {func} -- Sending method (default: {send})
-        
+
         Returns:
             {int} -- 0 for success, 1 for fail
-        """        
+        """
         send(real_time_reply.OK())
 
         # The state should be 'Online'
@@ -388,10 +400,23 @@ class Worker():
         # todo: Estimate label from real data
         gujibiaoqian = '1'
         self.labels.append((gujibiaoqian, zhenshibiaoqian))
+        logger.debug(
+            f'Estimated label: {gujibiaoqian}, True label: {zhenshibiaoqian}')
         logger.debug(f'Labels is {self.labels}')
+
+        # Send back Query result
         send(dict(mode='QueryReply',
                   gujibiaoqian=gujibiaoqian,
                   timestamp=time.time()))
+
+        # Send UI a motion order,
+        # if estimated and real label are both '1'
+        if all([gujibiaoqian == '1',
+                zhenshibiaoqian == '1']):
+            self.send_UI(dict(mode='Online',
+                              cmd='kaishiyundong',
+                              timestamp=time.time()))
+
         self.state = 'Online'
 
         logger.debug('Responded to query package')
@@ -399,14 +424,14 @@ class Worker():
 
     def keepalive(self, timestamp=0, send=send):
         """Answer keep-alive package
-        
+
         Keyword Arguments:
             timestamp {int} -- [description] (default: {0})
             send {func} -- Sending method (default: {send})
-        
+
         Returns:
             {int} -- 0 means success, 1 means fail
-        """        
+        """
         # Reply keep alive package
         send(real_time_reply.KeepAlive())
 

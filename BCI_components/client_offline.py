@@ -6,7 +6,6 @@ import threading
 
 from client import new_client, listen, shutdown, logger
 
-
 client = new_client()
 t = threading.Thread(target=listen, args=(client,))
 t.setDaemon(True)
