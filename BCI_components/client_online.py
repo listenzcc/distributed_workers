@@ -4,7 +4,7 @@ import time
 import json
 import threading
 
-from client import new_client, listen, shutdown, logger
+from client import new_client, listen, logger
 
 
 client_UI = new_client(role='UI')
@@ -16,6 +16,12 @@ for c in [client_UI, client_GAME]:
 
 
 def send(msg, client):
+    """Safe sending message using client
+
+    Arguments:
+        msg {object} -- Message to be send.
+        client {object} -- Client to use.
+    """
     if isinstance(msg, dict):
         msg = json.dumps(msg)
     if isinstance(msg, str):

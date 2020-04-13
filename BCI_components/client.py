@@ -46,3 +46,8 @@ def shutdown(client, silent=True):
     except:
         if not silent:
             traceback.print_exc()
+        logger.debug('Error occurred when client shutdown. {}'.format(
+            traceback.format_exc()
+        ))
+    finally:
+        logger.info(f'Client shutdown.')

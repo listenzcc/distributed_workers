@@ -4,7 +4,7 @@ import time
 import json
 import threading
 
-from client import new_client, listen, shutdown, logger
+from client import new_client, listen, logger
 
 client = new_client()
 t = threading.Thread(target=listen, args=(client,))
@@ -13,6 +13,14 @@ t.start()
 
 
 def send(msg, client=client):
+    """Safe sending message use client
+
+    Arguments:
+        msg {object} -- Message to be send
+
+    Keyword Arguments:
+        client {client} -- TCP client (default: {client})
+    """
     if isinstance(msg, dict):
         msg = json.dumps(msg)
     if isinstance(msg, str):
