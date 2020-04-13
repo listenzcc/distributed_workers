@@ -42,6 +42,7 @@ class Server():
         # Init server
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((ip, port))
+        logger.info(f'TCP Server is parepared listening on {ip}:{port}')
         # self.server.listen(1)
         # Init clients pool
         self._clientpool = []

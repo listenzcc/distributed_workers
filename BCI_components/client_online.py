@@ -7,8 +7,8 @@ import threading
 from client import new_client, listen, shutdown, logger
 
 
-client_UI = new_client()
-client_GAME = new_client()
+client_UI = new_client(role='UI')
+client_GAME = new_client(role='GAME')
 for c in [client_UI, client_GAME]:
     t = threading.Thread(target=listen, args=(c,))
     t.setDaemon(True)
