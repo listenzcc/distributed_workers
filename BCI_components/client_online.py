@@ -54,13 +54,13 @@ if __name__ == '__main__':
     time.sleep(0.5)
 
     # Correct package, query
-    for j in range(5):
-        send(dict(mode='Query',
-                  chixushijian='3.0',
-                  zhenshibiaoqian=f'{j % 2}',
-                  timestamp=time.time()),
-             client_GAME)
-        time.sleep(0.5)
+    # for j in range(5):
+    #     send(dict(mode='Query',
+    #               chixushijian='3.0',
+    #               zhenshibiaoqian=f'{j % 2}',
+    #               timestamp=time.time()),
+    #          client_GAME)
+    #     time.sleep(0.5)
 
     # Correct package, stop online
     send(dict(mode='Online',

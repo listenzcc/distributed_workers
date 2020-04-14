@@ -5,7 +5,7 @@ import socket
 import threading
 import traceback
 from worker import Worker
-from profile import IP, PORT, BUF_SIZE, logger, RealtimeReply
+from profile import IP, PORT, BUF_SIZE, logger, RealtimeReply, RuntimeError
 
 logger.info('---- New Session ----')
 
@@ -221,7 +221,7 @@ class Client():
                     logger.error(
                         f'Something went wrong in workload {workload}')
                     logger.debug(traceback.format_exc())
-                    self.send(runtime_error.UnknownError(detail=e))
+                    self.send(runtime_error.UnknownError(detail=e.__str__()))
 
             except Exception as e:
                 traceback.print_exc()

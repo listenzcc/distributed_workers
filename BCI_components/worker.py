@@ -363,8 +363,14 @@ class Worker():
 
         # Workload
         # Calculate accuracy
-        zhunquelv = self.accuracy()
-        logger.debug(f'Accuracy is {zhunquelv}, labels is {self.labels}.')
+        try:
+            zhunquelv = self.accuracy()
+            logger.debug(f'Accuracy is {zhunquelv}, labels are {self.labels}.')
+        except:
+            logger.debug(
+                f'Accuracy can not be calculated, labels are {self.labels}')
+            raise ValueError(
+                f'Accuracy can not be calculated, labels are {self.labels}')
 
         # Send accuracy back to UI as remembered
         send(dict(mode='Online',
