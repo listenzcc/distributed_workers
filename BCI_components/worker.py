@@ -375,7 +375,7 @@ class Worker():
         # Send accuracy back to UI as remembered
         send(dict(mode='Online',
                   cmd='zhunquelv',
-                  zhunquelv=zhunquelv,
+                  zhunquelv=str(zhunquelv),  # Covert accuracy into {str}
                   moxinglujing=self.moxinglujing,
                   shujulujing=self.shujulujing,
                   timestamp=time.time()))
@@ -406,10 +406,10 @@ class Worker():
 
         # Workload
         self.state = 'Busy'
-        # Guess label, always return '1' for now
+        # Guess label, always return '2' for now
         # todo: Estimate label from real data
         logger.debug('Estimating label.')
-        gujibiaoqian = '1'
+        gujibiaoqian = '2'
         self.labels.append((gujibiaoqian, zhenshibiaoqian))
         logger.debug(
             f'Estimated label: {gujibiaoqian}, True label: {zhenshibiaoqian}')
@@ -421,9 +421,9 @@ class Worker():
                   timestamp=time.time()))
 
         # Send UI a motion order,
-        # if estimated and real label are both '1'
-        if all([gujibiaoqian == '1',
-                zhenshibiaoqian == '1']):
+        # if estimated and real label are both '2'
+        if all([gujibiaoqian == '2',
+                zhenshibiaoqian == '2']):
             self.send_UI(dict(mode='Online',
                               cmd='kaishiyundong',
                               timestamp=time.time()))

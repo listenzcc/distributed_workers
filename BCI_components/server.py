@@ -17,6 +17,24 @@ real_time_reply = RealtimeReply()
 runtime_error = RuntimeError()
 
 
+def reg_timestamp(timestamp, tmp=time.time()):
+    """Regularize time stamp and rescale it into time.time()
+
+    Arguments:
+        timestamp {object} -- Input time stamp.
+
+    Keyword Arguments:
+        tmp {float} -- Default correct time stamp (default: {time.time()})
+
+    Returns:
+        {float} -- Regularized timestamp
+    """
+    ts = float(timestamp)
+    a = len(str(ts).split('.')[0])
+    b = len(str(ts).split('.')[0])
+    return ts * (10 ** (b-a))
+
+
 def delay(timestamp):
     """Calculate delay based on [timestamp]
 
@@ -26,7 +44,9 @@ def delay(timestamp):
     Returns:
         {float} -- Calculated delay
     """
-    return time.time() - float(timestamp)
+    now = time.time()
+    t = reg_timestamp(timestamp, now)
+    return now - t
 
 
 class Server():

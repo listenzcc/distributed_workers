@@ -20,7 +20,8 @@ def stamp(d):
         {dict} -- New dict with timestamp added
     """
     assert(isinstance(d, dict))
-    d['timestamp'] = time.time()
+    # Time stamp is of type {str}
+    d['timestamp'] = str(time.time())
     return d
 
 
