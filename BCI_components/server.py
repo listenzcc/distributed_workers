@@ -44,9 +44,15 @@ def delay(timestamp):
     Returns:
         {float} -- Calculated delay
     """
+
     now = time.time()
-    t = reg_timestamp(timestamp, now)
-    return now - t
+    try:
+        t = reg_timestamp(timestamp, now)
+    except Exception as err:
+        logger.error(f'Computing delay met error: {err}')
+        t = now
+    finally:
+        return now - t
 
 
 class Server():
