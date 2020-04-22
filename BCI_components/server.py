@@ -30,8 +30,11 @@ def reg_timestamp(timestamp, tmp=time.time()):
         {float} -- Regularized timestamp
     """
     ts = float(timestamp)
+    # Length of input
     a = len(str(ts).split('.')[0])
-    b = len(str(ts).split('.')[0])
+    # Length of template
+    b = len(str(tmp).split('.')[0])
+    # Re-scale
     return ts * (10 ** (b-a))
 
 
