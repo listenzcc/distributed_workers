@@ -70,4 +70,11 @@ if __name__ == '__main__':
               timestamp=time.time()),
          client_UI)
 
+    # Wrong package, linked package
+    a = dict(mode='keepalive',
+             timestamp=time.time())
+    bstr = json.dumps(a)
+    send(bstr+bstr,
+         client_UI)
+
     input('Enter to escape.')

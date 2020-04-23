@@ -178,6 +178,66 @@ class Client():
         logger.info(f'Sent {msg} to {self.address}')
         logger.debug(f'Sent {msg} to {self.address}')
 
+    def deal(self, D):
+        """Deal with incoming message
+
+        Arguments:
+            D {dict} -- Parsed message dictionary
+        """
+        # Make sure D is legal,
+        # send ParseError if illegal
+        # D is dict
+        if not isinstance(D, dict):
+            self.send(real_time_reply.ParseError())
+            logger.error(f'{D} is not dict')
+            return 1
+
+        logger.debug(f'Dealing with {D}')
+
+        # D contains timestamp
+        if 'timestamp' not in D:
+            self.send(real_time_reply.ParseError())
+            logger.error(f'{D} contains no timestamp')
+            return 1
+
+        # Record Delay
+        logger.debug('Delay is {}'.format(delay(D['timestamp'])))
+
+        # D contains 'mode', ['cmd'], and worker can deal with them
+        # D contains 'mode'
+        if 'mode' not in D:
+            self.send(real_time_reply.ParseError())
+            logger.error(f'{D} contains no mode')
+            return 1
+
+        # Deal with 'cmd' if it exists
+        if 'cmd' in D:
+            workload = '{mode}_{cmd}'.format(**D).lower()
+        else:
+            workload = '{mode}'.format(**D).lower()
+
+        # Worker can deal with them
+        if not hasattr(worker, workload):
+            self.send(real_time_reply.ParseError())
+            logger.error(f'{D} triggers no workload')
+            return 1
+
+        # Get ride of 'mode' and ['cmd']
+        D.pop('mode')
+        D.pop('cmd', None)
+
+        # Operate
+        logger.debug(f'Workload starts {workload}')
+        try:
+            eval(f'worker.{workload}(**D, send=self.send)')
+            return 0
+        except Exception as e:
+            logger.error(
+                f'Something went wrong in workload {workload}')
+            logger.debug(traceback.format_exc())
+            self.send(runtime_error.UnknownError(detail=e.__str__()))
+            return 1
+
     def listening(self):
         """ Listen and handling incoming message """
         while True:
@@ -198,61 +258,32 @@ class Client():
                     D = json.loads(data.decode())
                 except:
                     self.send(real_time_reply.ParseError())
-                    logger.error(f'{data} can not be loaded by JSON')
-                    continue
+                    logger.debug(
+                        f'{data} can not be loaded by JSON, try linked expection.')
+                    try:
+                        split = data.decode().split('}{')
+                        D = list()
+                        for s in split:
+                            if not s.startswith('{'):
+                                s = '{' + s
+                            if not s.endswith('}'):
+                                s = s + '}'
+                            D.append(json.loads(s))
+                        logger.debug(f'Link exception success: {D}.')
+                    except:
+                        logger.error(f'{data} can not be loaded by JSON')
+                        logger.error('{}'.format(traceback.format_exc()))
+                        continue
                 # print(D)
 
-                # Make sure D is legal,
-                # send ParseError if illegal
-                # D is dict
-                if not isinstance(D, dict):
-                    self.send(real_time_reply.ParseError())
-                    logger.error(f'{D} is not dict')
-                    continue
-
-                # D contains timestamp
-                if 'timestamp' not in D:
-                    self.send(real_time_reply.ParseError())
-                    logger.error(f'{D} contains no timestamp')
-                    continue
-
-                # Record Delay
-                logger.debug('Delay is {}'.format(delay(D['timestamp'])))
-
-                # D contains 'mode', ['cmd'], and worker can deal with them
-                # D contains 'mode'
-                if 'mode' not in D:
-                    self.send(real_time_reply.ParseError())
-                    logger.error(f'{D} contains no mode')
-                    continue
-
-                # Deal with 'cmd' if it exists
-                if 'cmd' in D:
-                    workload = '{mode}_{cmd}'.format(**D).lower()
+                # Deal with D
+                if isinstance(D, list):
+                    for d in D:
+                        self.deal(d)
                 else:
-                    workload = '{mode}'.format(**D).lower()
+                    self.deal(D)
 
-                # Worker can deal with them
-                if not hasattr(worker, workload):
-                    self.send(real_time_reply.ParseError())
-                    logger.error(f'{D} triggers no workload')
-                    continue
-
-                # Get ride of 'mode' and ['cmd']
-                D.pop('mode')
-                D.pop('cmd', None)
-
-                # Operate
-                logger.debug(f'Workload starts {workload}')
-                try:
-                    eval(f'worker.{workload}(**D, send=self.send)')
-                except Exception as e:
-                    logger.error(
-                        f'Something went wrong in workload {workload}')
-                    logger.debug(traceback.format_exc())
-                    self.send(runtime_error.UnknownError(detail=e.__str__()))
-
-            except Exception as e:
+            except Exception:
                 traceback.print_exc()
                 logger.debug(traceback.format_exc())
                 # Close the client
