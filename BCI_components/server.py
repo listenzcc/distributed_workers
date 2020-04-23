@@ -257,7 +257,6 @@ class Client():
                 try:
                     D = json.loads(data.decode())
                 except:
-                    self.send(real_time_reply.ParseError())
                     logger.debug(
                         f'{data} can not be loaded by JSON, try linked expection.')
                     try:
@@ -273,6 +272,8 @@ class Client():
                     except:
                         logger.error(f'{data} can not be loaded by JSON')
                         logger.error('{}'.format(traceback.format_exc()))
+                        self.send(real_time_reply.ParseError(
+                            detail=data.decode()))
                         continue
                 # print(D)
 

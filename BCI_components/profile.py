@@ -41,14 +41,17 @@ class RealtimeReply():
         return stamp(dict(mode='Reply',
                           state='OK'))
 
-    def ParseError(self):
+    def ParseError(self, detail=''):
         """ParseError response means TCP packages is received but can not be understand.
 
+        Keyword Arguments:
+            detail {str} -- Brief description of the error (default: {''})
         Returns:
             {dict} -- ParseError response
         """
         return stamp(dict(mode='Reply',
-                          state='ParseError'))
+                          state='ParseError',
+                          detail=detail))
 
     def KeepAlive(self):
         """Response to KeepAlive package, used only for KeepAlive package being received.
