@@ -3,8 +3,7 @@
 import os
 import time
 import threading
-from logger import Logger
-from profile import RealtimeReply, RuntimeError, logger
+from local_profile import RealtimeReply, RuntimeError, logger
 
 # Real-time reply instance
 real_time_reply = RealtimeReply()

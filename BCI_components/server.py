@@ -5,7 +5,7 @@ import socket
 import threading
 import traceback
 from worker import Worker
-from profile import IP, PORT, BUF_SIZE, logger, RealtimeReply, RuntimeError
+from local_profile import IP, PORT, BUF_SIZE, logger, RealtimeReply, RuntimeError
 
 logger.info('---- New Session ----')
 

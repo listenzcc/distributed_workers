@@ -4,7 +4,7 @@ import time
 import json
 import threading
 
-from client import new_client, listen, logger
+from client_module import new_client, listen, logger
 
 
 client_UI = new_client(role='UI')
