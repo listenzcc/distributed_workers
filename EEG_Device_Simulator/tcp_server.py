@@ -62,10 +62,15 @@ class Server():
 
         client.sendall(b'hello')
         # for j in range(10):
+
+        interval = 0.1
+        passed_time = 0
         while True:
-            time.sleep(0.1)
-            bits = make_up_package(np.linspace(1, 25, 25))
-            print(len(bits))
+            time.sleep(interval)
+            passed_time += interval
+            print(passed_time)
+            bits = make_up_package(np.linspace(
+                1, 25 * SFREQ * interval, int(25 * SFREQ * interval)))
             # bits = b''
             # for e in [0.34, 0.83, -0.64]:
             #     bits += struct.pack('!f', e)
