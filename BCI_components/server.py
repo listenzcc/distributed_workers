@@ -1,13 +1,18 @@
 """ TCP server of BCI. """
+import os
 import time
 import json
 import socket
 import threading
 import traceback
 from worker import Worker
-from local_profile import IP, PORT, BUF_SIZE, logger, RealtimeReply, RuntimeError
+from local_profile import IP, PORT, BUF_SIZE, USE_BACKEND, logger, RealtimeReply, RuntimeError
+from backend_toolbox import new_backend
+import local_profile
+CurrentDirectory = os.path.dirname(local_profile.__file__)
 
 logger.info('---- New Session ----')
+
 
 # Worker instance
 worker = Worker()
@@ -29,6 +34,7 @@ def reg_timestamp(timestamp, tmp=time.time()):
     Returns:
         {float} -- Regularized timestamp
     """
+
     ts = float(timestamp)
     # Length of input
     a = len(str(ts).split('.')[0])
@@ -301,6 +307,13 @@ if __name__ == '__main__':
     server = Server()
     worker.get_ready()
     server.starts()
+
+    if USE_BACKEND:
+        print(CurrentDirectory)
+        new_backend(working_directory=os.path.join(CurrentDirectory, 'local_backend'),
+                    IP=IP,
+                    PORT=PORT)
+
     while True:
         msg = input('>> ')
 
