@@ -1,8 +1,11 @@
 
-global TCPIP_Client
-
 clear_timers
 
-fclose(TCPIP_Client);
 
+global dataServer
+dataServer.Close();
+disp('The dataServer is closed.')
+
+global TCPIP_Client
+fclose(TCPIP_Client);
 disp('The client is closed.')

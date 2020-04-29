@@ -1,3 +1,15 @@
+% Init dataServer
+global dataServer
+device = 'DSI-24';
+nChan = 25;
+sampleRate = 300; % sampling rate of the device
+bufferSize = 600; % buffer size in seconds
+dataServer = DataServer(device, IP_EEG_DEVICE, PORT_EEG_DEVICE, nChan, sampleRate, bufferSize);
+disp('The dataServer is started.')
+
+% Init controllers
+global IS_COLLECTING
+IS_COLLECTING = false;
 
 % Init TCP/IP client
 global TCPIP_Client
@@ -15,45 +27,19 @@ KeepAliveTimer = timer(...
     'Period', 10,...
     'TimerFcn', 'send_keep_alive',...
     'ErrorFcn', 'matlab_client_stop',...
-    'ExecutionMode', 'fixedRate');
+    'ExecutionMode', 'fixedRate',...
+    'BusyMode', 'queue');
 start(KeepAliveTimer)
 
 % Setup and start MainLoopTimer
 MainLoopTimer = timer(...
     'Name', 'MainLoopTimer',...
-    'Period', 1,...
+    'Period', 0.1,...
     'TimerFcn', 'main_loop',...
     'ErrorFcn', 'matlab_client_stop',...
-    'ExecutionMode', 'fixedRate');
+    'ExecutionMode', 'fixedRate',...
+    'BusyMode', 'queue');
 start(MainLoopTimer)
 
 disp('The client is started.')
-
-% % Main loop
-% % Todo: change it into a timer
-% while (1)
-%     disp('Waiting...')
-%     while TCPIP_Client.BytesAvailable == 0
-%         a = 1;
-%     end
-%     data = fread(TCPIP_Client, TCPIP_Client.BytesAvailable, 'uint8');
-%     data = convertCharsToStrings(char(data))
-%     
-%     if data.startsWith('-')
-%         s = struct('mode', 'keepalive',...
-%             'timestamp', num2str(posixtime(datetime('now'))));
-%         fwrite(TCPIP_Client, jsonencode(s))
-%     end
-% 
-%     if data == 'quit'
-%         break
-%     end
-% end
-% 
-% % Clear known timers
-% stop(KeepAliveTimer)
-% delete(KeepAliveTimer)
-% 
-% % Close TCP/IP client
-% fclose(TCPIP_Client)
 

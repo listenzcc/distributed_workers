@@ -6,7 +6,10 @@ from logger import Logger
 IP = 'localhost'
 PORT = 63365
 BUF_SIZE = 1024
+
 USE_BACKEND = True
+IP_EEG_DEVICE = '127.0.0.1'
+PORT_EEG_DEVICE = 8844
 
 logger = Logger(name='BCI', filepath=os.path.join('BCI.log')).logger
 

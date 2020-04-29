@@ -6,7 +6,9 @@ import socket
 import threading
 import traceback
 from worker import Worker
-from local_profile import IP, PORT, BUF_SIZE, USE_BACKEND, logger, RealtimeReply, RuntimeError
+from local_profile import IP, PORT, BUF_SIZE
+from local_profile import logger, RealtimeReply, RuntimeError
+from local_profile import USE_BACKEND, IP_EEG_DEVICE, PORT_EEG_DEVICE
 from backend_toolbox import new_backend
 import local_profile
 CurrentDirectory = os.path.dirname(local_profile.__file__)
@@ -312,7 +314,9 @@ if __name__ == '__main__':
         print(CurrentDirectory)
         new_backend(working_directory=os.path.join(CurrentDirectory, 'local_backend'),
                     IP=IP,
-                    PORT=PORT)
+                    PORT=PORT,
+                    IP_EEG_DEVICE=IP_EEG_DEVICE,
+                    PORT_EEG_DEVICE=PORT_EEG_DEVICE)
 
     while True:
         msg = input('>> ')
