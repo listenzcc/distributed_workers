@@ -136,8 +136,17 @@ class Server():
         passed_time = 0
         states = ['rest', 'fake', 'rest', 'real']
         idx = 0
+        t = time.time()
+        print(states[idx])
         while True:
-            time.sleep(interval)
+            # Make up bits according to [state] and [interval]
+            bits = make_up_package(self.make_signal(state=states[idx],
+                                                    interval=interval))
+
+            # Send bits
+            client.sendall(bits)
+
+            time.sleep(interval - (time.time()-t) % interval)
             passed_time += interval
             # The state will be switched every 5 seconds
             if passed_time > 5:
@@ -145,13 +154,6 @@ class Server():
                 idx += 1
                 idx %= len(states)
                 print(states[idx])
-
-            # Make up bits according to [state] and [interval]
-            bits = make_up_package(self.make_signal(state=states[idx],
-                                                    interval=interval))
-
-            # Send bits
-            client.sendall(bits)
 
         client.close()
 

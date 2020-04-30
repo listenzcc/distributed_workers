@@ -148,33 +148,71 @@ class Worker():
                     send=send)
             return 1
 
-    def record(self, path, model_msg=''):
-        """Start data record
+    # def record(self, path, model_msg=''):
+    #     """Start data record
 
-        Arguments:
-            path {str} -- The path of data file
+    #     Arguments:
+    #         path {str} -- The path of data file
 
-        Keyword Arguments:
-            model_msg {str} -- Model information, if model is available (ONLINE record) (default: {''})
-        """
-        logger.info('Record starts.')
-        logger.debug(f'Record path starts in {path}')
-        # Record one line every 0.1 seconds,
-        # until STATE is switched to 'Idle' again.
-        with open(path, 'w') as f:
-            f.write(f'{model_msg}\n')
-            f.write('-' * 40 + 'starts.\n')
-            # Record until STATE is switched to 'Idle'
-            while self.state not in ['Idle']:
-                f.write('{} - {}\n'.format(time.time(), time.ctime()))
-                time.sleep(0.1)
-            f.write('-' * 40 + 'ends.\n')
-        logger.debug(f'Record path stops in {path}')
-        logger.info('Record finished.')
+    #     Keyword Arguments:
+    #         model_msg {str} -- Model information, if model is available (ONLINE record) (default: {''})
+    #     """
+    #     logger.info('Record starts.')
+    #     logger.debug(f'Record path starts in {path}')
+    #     # Record one line every 0.1 seconds,
+    #     # until STATE is switched to 'Idle' again.
+    #     with open(path, 'w') as f:
+    #         f.write(f'{model_msg}\n')
+    #         f.write('-' * 40 + 'starts.\n')
+    #         # Record until STATE is switched to 'Idle'
+    #         while self.state not in ['Idle']:
+    #             f.write('{} - {}\n'.format(time.time(), time.ctime()))
+    #             time.sleep(0.1)
+    #         f.write('-' * 40 + 'ends.\n')
+    #     logger.debug(f'Record path stops in {path}')
+    #     logger.info('Record finished.')
 
     def accept_backend(self, timestamp=0, send=send):
         self.send_backend = send
         logger.info('Backend connection established.')
+        pass
+
+    def response_query(self, gujibiaoqian, timestamp=0, send=send):
+        self.latest_query_send(dict(mode='QueryReply',
+                                    gujibiaoqian=gujibiaoqian,
+                                    timestamp=time.time()))
+
+        zhenshibiaoqian = self.latest_zhenshibiaoqian
+        if all([gujibiaoqian == '2',
+                zhenshibiaoqian == '2']):
+            self.send_UI(dict(mode='Online',
+                              cmd='kaishiyundong',
+                              timestamp=time.time()))
+
+        self.labels.append((gujibiaoqian, zhenshibiaoqian))
+        logger.info(
+            f'Estimated label: {gujibiaoqian}, True label: {zhenshibiaoqian}')
+        logger.debug(
+            f'Estimated label: {gujibiaoqian}, True label: {zhenshibiaoqian}')
+        logger.debug(f'Labels is {self.labels}')
+
+        pass
+
+    def response_jianmo(self, zhunquelv, timestamp=0, send=send):
+        moxinglujing = self.latest_moxinglujing
+        shujulujing = self.latest_shujulujing
+
+        self.latest_jianmo_send(dict(mode='Offline',
+                                     cmd='zhunquelv',
+                                     moxinglujing=moxinglujing,
+                                     zhunquelv=zhunquelv,
+                                     timestamp=time.time()))
+
+        logger.debug(
+            f'Built model based on {shujulujing}, model has been saved in {moxinglujing}.')
+        logger.info(
+            f'Built model based on {shujulujing}, model has been saved in {moxinglujing}.')
+
         pass
 
     def offline_kaishicaiji(self, shujulujingqianzhui, timestamp=0, send=send):
@@ -212,15 +250,16 @@ class Worker():
 
         try:
             self.send_backend(dict(cmd='kaishicaiji',
-                                   path=path))
+                                   mat_path=path,
+                                   model_path='[empty]'))
         except:
             logger.info('Fail to start offline recording in backend.')
             traceback.print_exc()
 
         # Start self.record function as separate daemon threading
-        t = threading.Thread(target=self.record, args=(path,))
-        t.setDaemon(True)
-        t.start()
+        # t = threading.Thread(target=self.record, args=(path,))
+        # t.setDaemon(True)
+        # t.start()
 
         logger.debug('Started offline collection.')
         return 0
@@ -244,6 +283,7 @@ class Worker():
         # workload
         self.state = 'Idle'
 
+        # Stop backend
         try:
             self.send_backend(dict(cmd='jieshucaiji'))
         except:
@@ -286,32 +326,18 @@ class Worker():
             return 1
 
         # Workload
-        self.state = 'Busy'
         moxinglujing = f'{moxinglujingqianzhui}.mat'
 
         # todo: Building a model
+        self.latest_jianmo_send = send
+        self.latest_shujulujing = shujulujing
+        self.latest_moxinglujing = moxinglujing
+        self.send_backend(dict(cmd='jianmo',
+                               moxinglujing=moxinglujing,
+                               shujulujing=shujulujing))
         logger.debug('Building model.')
-        try:
-            with open(moxinglujing, 'w') as f:
-                f.writelines(['Hello, I am a model.\n',
-                              time.ctime(),
-                              '\n------------------\n'])
-                f.write(f'{shujulujing}\n')
-                f.write('\n------------------------ends')
-        except Exception as e:
-            onerror(runtime_error.FileError, e, send=send)
-        finally:
-            logger.debug('Building model done.')
-            self.state = 'Idle'
+        logger.info('Building model.')
 
-        send(dict(mode='Offline',
-                  cmd='zhunquelv',
-                  moxinglujing=moxinglujing,
-                  zhunquelv='0.95',
-                  timestamp=time.time()))
-
-        logger.debug(
-            f'Built model based on {shujulujing}, model has been saved in {moxinglujing}.')
         return 0
 
     def online_kaishicaiji(self, moxinglujing, shujulujingqianzhui, timestamp=0, send=send):
@@ -347,19 +373,25 @@ class Worker():
             return 1
 
         # Workload
-        path = f'{shujulujingqianzhui}.cnt'
+        path = f'{shujulujingqianzhui}.mat'
 
         # Remember Send-to-UI method,
         # as Start online collection can only be triggered by UI.
         self.get_ready(state='Online',
-                       moxinglujing=moxinglujing,
-                       shujulujing=path,
                        send_UI=send)
 
+        try:
+            self.send_backend(dict(cmd='kaishicaiji',
+                                   mat_path=path,
+                                   model_path=moxinglujing))
+        except:
+            logger.info('Fail to start online recording in backend.')
+            traceback.print_exc()
+
         # Start daemon thread for data collection and start it
-        t = threading.Thread(target=self.record, args=(path, moxinglujing))
-        t.setDaemon(True)
-        t.start()
+        # t = threading.Thread(target=self.record, args=(path, moxinglujing))
+        # t.setDaemon(True)
+        # t.start()
 
         logger.debug('Started online collection.')
         return 0
@@ -381,6 +413,14 @@ class Worker():
             return 1
 
         # Workload
+
+        # Stop backend
+        try:
+            self.send_backend(dict(cmd='jieshucaiji'))
+        except:
+            logger.info('Fail to stop offline recording in backend.')
+            traceback.print_exc()
+
         # Calculate accuracy
         try:
             zhunquelv = self.accuracy()
@@ -407,7 +447,7 @@ class Worker():
         """Answer for query package during ONLINE collection
 
         Arguments:
-            chixushijian {float} -- Duration of the lastest motion
+            chixushijian {float} -- Duration of the latest motion
             zhenshibiaoqian {str} -- True label of motion (image or actural motion)
 
         Keyword Arguments:
@@ -424,32 +464,29 @@ class Worker():
             return 1
 
         # Workload
-        self.state = 'Busy'
-        # Guess label, always return '2' for now
-        # todo: Estimate label from real data
-        logger.debug('Estimating label.')
-        gujibiaoqian = '2'
-        self.labels.append((gujibiaoqian, zhenshibiaoqian))
-        logger.debug(
-            f'Estimated label: {gujibiaoqian}, True label: {zhenshibiaoqian}')
-        logger.debug(f'Labels is {self.labels}')
+        # Save the [send] as [latest_query_send],
+        # the query result will be send through it
+        self.latest_query_send = send
+        self.latest_zhenshibiaoqian = zhenshibiaoqian
+        self.send_backend(dict(cmd='query'))
+        # # Guess label, always return '2' for now
+        # # todo: Estimate label from real data
+        # logger.debug('Estimating label.')
+        # gujibiaoqian = '2'
+        # # Send back Query result
+        # send(dict(mode='QueryReply',
+        #           gujibiaoqian=gujibiaoqian,
+        #           timestamp=time.time()))
 
-        # Send back Query result
-        send(dict(mode='QueryReply',
-                  gujibiaoqian=gujibiaoqian,
-                  timestamp=time.time()))
+        # # Send UI a motion order,
+        # # if estimated and real label are both '2'
+        # if all([gujibiaoqian == '2',
+        #         zhenshibiaoqian == '2']):
+        #     self.send_UI(dict(mode='Online',
+        #                       cmd='kaishiyundong',
+        #                       timestamp=time.time()))
 
-        # Send UI a motion order,
-        # if estimated and real label are both '2'
-        if all([gujibiaoqian == '2',
-                zhenshibiaoqian == '2']):
-            self.send_UI(dict(mode='Online',
-                              cmd='kaishiyundong',
-                              timestamp=time.time()))
-
-        self.state = 'Online'
-
-        logger.debug('Responded to query package')
+        # logger.debug('Responded to query package')
         return 0
 
     def keepalive(self, timestamp=0, send=send):

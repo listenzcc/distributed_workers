@@ -19,10 +19,14 @@ if isTrigger
         label=data(end,:);
         label_loc=find(diff(label)>0)+1;
         idxTrigger = label_loc(length(label_loc));
-        trigger=label(idxTrigger);
+        
+        idxTrigger = size(data, 2) - nPoints - 10;
+        trigger = max(label(idxTrigger), 1);
+        
+%         trigger=label(idxTrigger);
         if size(data,2)-idxTrigger+1 >= nPoints &&  size(data,2)-idxTrigger+1 <= nPoints+300
             Trigger_occ(Label_num)=idxTrigger;
-            Label_num=Label_num+1;
+%             Label_num=Label_num+1;
             if length(Trigger_occ)<2
                 data_process=data(1:end-1,idxTrigger+1:idxTrigger+nPoints);
                 label_pre=CSP_OnLine_dry(data_process,offlineModel,trigger);
@@ -33,7 +37,7 @@ if isTrigger
             end
         else
             Label_num=1;
-%             disp(['数据长度小于4s'] );
+            disp(['数据长度小于4s'] );
         end
     else
         Label_num=1;

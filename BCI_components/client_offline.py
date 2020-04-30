@@ -4,7 +4,7 @@ import time
 import json
 import threading
 
-from client_module import new_client, listen, logger
+from client_module import new_client, listen, logger, CurrentDirectory
 
 client = new_client()
 t = threading.Thread(target=listen, args=(client,))
@@ -39,27 +39,27 @@ if __name__ == '__main__':
                   timestamp=time.time()))
         time.sleep(0.2)
 
-    # Wrong package, stop offline before start
-    send(dict(mode='Offline',
-              cmd='jieshucaiji',
-              timestamp=time.time()))
-    time.sleep(0.5)
+    # # Wrong package, stop offline before start
+    # send(dict(mode='Offline',
+    #           cmd='jieshucaiji',
+    #           timestamp=time.time()))
+    # time.sleep(0.5)
 
     # Correct package, start offline
     send(dict(mode='Offline',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  'DataShop', subjectID, 'Data', sessionID),
+                  CurrentDirectory, 'DataShop', subjectID, 'Data', sessionID),
               timestamp=time.time()))
-    time.sleep(0.5)
+    time.sleep(200)
 
-    # Wrong package, repeat start offline
-    send(dict(mode='Offline',
-              cmd='kaishicaiji',
-              shujulujingqianzhui=os.path.join(
-                  'DataShop', subjectID, 'Data', sessionID),
-              timestamp=time.time()))
-    time.sleep(0.5)
+    # # Wrong package, repeat start offline
+    # send(dict(mode='Offline',
+    #           cmd='kaishicaiji',
+    #           shujulujingqianzhui=os.path.join(
+    #               'DataShop', subjectID, 'Data', sessionID),
+    #           timestamp=time.time()))
+    # time.sleep(0.5)
 
     # Correct package, stop offline
     send(dict(mode='Offline',
@@ -71,10 +71,10 @@ if __name__ == '__main__':
     send(dict(mode='Offline',
               cmd='jianmo',
               shujulujing=os.path.join(
-                  'DataShop', subjectID, 'Data', f'{sessionID}.cnt'),
+                  CurrentDirectory, 'DataShop', subjectID, 'Data', f'{sessionID}.mat'),
               moxinglujingqianzhui=os.path.join(
-                  'DataShop', subjectID, 'Model', sessionID),
+                  CurrentDirectory, 'DataShop', subjectID, 'Model', sessionID),
               timestamp=time.time()))
-    time.sleep(0.5)
+    time.sleep(1)
 
     input('Enter to escape.')

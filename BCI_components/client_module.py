@@ -1,4 +1,5 @@
 """ TCP client for test. """
+import local_profile
 import socket
 import time
 import json
@@ -9,6 +10,8 @@ from local_profile import IP, PORT, BUF_SIZE  # , logger
 
 from logger import Logger
 logger = Logger(name='UI_GAME', filepath=os.path.join('UI_GAME.log')).logger
+
+CurrentDirectory = os.path.dirname(local_profile.__file__)
 
 
 def new_client(role='--'):

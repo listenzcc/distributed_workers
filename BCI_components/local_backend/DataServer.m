@@ -73,8 +73,12 @@ end
 function timerCallBack(obj, event, dataParser, ringBuffer)
     if obj.BytesAvailable > 0
 %         fprintf('BytesAvailable: %d\n', obj.BytesAvailable);
-        raw = fread(obj, obj.BytesAvailable, 'uint8');
-        dataParser.WriteData(raw, ringBuffer);
+        try
+            raw = fread(obj, obj.BytesAvailable, 'uint8');
+            dataParser.WriteData(raw, ringBuffer);
+        catch
+            disp('--')
+        end
     end
 end
 

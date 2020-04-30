@@ -4,7 +4,7 @@ import time
 import json
 import threading
 
-from client_module import new_client, listen, logger
+from client_module import new_client, listen, logger, CurrentDirectory
 
 
 client_UI = new_client(role='UI')
@@ -42,27 +42,29 @@ if __name__ == '__main__':
         time.sleep(0.2)
 
     # Correct package, start online
-    models = os.listdir(os.path.join('DataShop', subjectID, 'Model'))
+    models = os.listdir(os.path.join(
+        CurrentDirectory, 'DataShop', subjectID, 'Model'))
     send(dict(mode='Online',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  'DataShop', subjectID, 'OnlineData', sessionID),
+                  CurrentDirectory, 'DataShop', subjectID, 'OnlineData', sessionID),
               moxinglujing=os.path.join(
-                  'DataShop', subjectID, 'Model', models[0]),
+                  CurrentDirectory, 'DataShop', subjectID, 'Model', models[0]),
               timestamp=time.time()),
          client_UI)
-    time.sleep(0.5)
+
+    time.sleep(0.1)
 
     # Correct package, query
     # 2: Real motion
     # 1: Fake motion
-    for j in range(5):
+    for j in range(10):
         send(dict(mode='Query',
                   chixushijian='3.0',
                   zhenshibiaoqian=f'{j % 2 + 1}',
                   timestamp=time.time()),
              client_GAME)
-        time.sleep(0.5)
+        time.sleep(5)
 
     # Correct package, stop online
     send(dict(mode='Online',
@@ -70,11 +72,11 @@ if __name__ == '__main__':
               timestamp=time.time()),
          client_UI)
 
-    # Wrong package, linked package
-    a = dict(mode='keepalive',
-             timestamp=time.time())
-    bstr = json.dumps(a)
-    send(bstr+bstr,
-         client_UI)
+    # # Wrong package, linked package
+    # a = dict(mode='keepalive',
+    #          timestamp=time.time())
+    # bstr = json.dumps(a)
+    # send(bstr+bstr,
+    #      client_UI)
 
     input('Enter to escape.')

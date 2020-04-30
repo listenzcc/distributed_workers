@@ -68,8 +68,6 @@ catch
     return
 end
 
-jsons
-
 for json = jsons
     try
         json = jsondecode(char(json));
@@ -84,7 +82,8 @@ for json = jsons
             assert(strcmp(STATE, 'Idle'))
             
             disp('Start offline collection')
-            MAT_FILE_PATH = json.path
+            MAT_FILE_PATH = json.mat_path
+            MODEL_FILE_PATH = json.model_path
             disp('Start collection.')
             dataServer.Open();
             
@@ -104,16 +103,75 @@ for json = jsons
             disp('Stop collection.')
             
             data = dataServer.GetBufferData;
+            disp(['Saving on ', MAT_FILE_PATH])
             save(MAT_FILE_PATH, 'data')
             
             disp(MAT_FILE_PATH)
             
             dataServer.ringBuffer.Reset;
             
+            dataServer.Close();
+            disp('The dataServer is closed.')
+            
             STATE = 'Idle'
         end
     catch
         disp('Not stop collection, continue')
+    end
+    
+    % Build model
+    try
+        if strcmp(json.cmd, 'jianmo')
+            MAT_FILE_PATH = json.shujulujing
+            MODEL_FILE_PATH = json.moxinglujing
+            offlineData = load(MAT_FILE_PATH)
+            
+            data = offlineData.data;
+            e = size(data, 2);
+            while data(end, e) ~= 0
+                e = e - 1;
+            end
+            data = data(:, 1:e);
+            size(data)
+            offlineData.data = data;
+            
+            [Output_acc, Max_line, filter, model_final, mean_temp_final, std_temp_final] = model_dry(offlineData);
+            Output_acc
+            
+            save(MODEL_FILE_PATH, 'Max_line', 'filter', 'model_final', 'mean_temp_final', 'std_temp_final');
+            
+            fwrite(TCPIP_Client, jsonencode(struct(...
+                'mode', 'response',...
+                'cmd', 'jianmo',...
+                'zhunquelv', num2str(Output_acc),...
+                'timestamp', num2str(posixtime(datetime('now'))))))
+            
+        end
+    catch
+        disp('Not model building, continue')
+    end
+    
+    % Query
+    try
+        if strcmp(json.cmd, 'query')
+            offlineModel = load(MODEL_FILE_PATH);
+            
+            datetime
+            
+            [label_pre, Trigger] = process_online_dry_long(dataServer, offlineModel)
+            
+            if isempty(label_pre)
+                label_pre = 0
+            end
+            
+            fwrite(TCPIP_Client, jsonencode(struct(...
+                'mode', 'response',...
+                'cmd', 'query',...
+                'gujibiaoqian', num2str(label_pre),...
+                'timestamp', num2str(posixtime(datetime('now'))))))
+        end
+    catch
+        disp('Not query, continue')
     end
 end
 
