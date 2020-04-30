@@ -4,6 +4,11 @@ function main_loop()
 global TCPIP_Client
 global dataServer
 
+global STATE
+
+global MAT_FILE_PATH
+global MODEL_FILE_PATH
+
 if TCPIP_Client.BytesAvailable == 0
     return
 end
@@ -49,11 +54,12 @@ end
 
 try
     jsons = strsplit(data, '}{');
+    
     for j = 1 : length(jsons)
-        if jsons{j}(1) == '{'
+        if jsons{j}(1) ~= '{'
             jsons{j} = ['{', jsons{j}];
         end
-        if ~jsons{j}(end) == '}'
+        if jsons{j}(end) ~= '}'
             jsons{j} = [jsons{j}, '}'];
         end
     end
@@ -66,11 +72,48 @@ jsons
 
 for json = jsons
     try
-        if strcmp(json.mode, 'offline') && strcmp(json.mode, 'kaishicaiji')
+        json = jsondecode(char(json));
+    catch
+        disp('Not a json, ignore')
+        continue
+    end
+    
+    % Start Collection
+    try
+        if strcmp(json.cmd, 'kaishicaiji')
+            assert(strcmp(STATE, 'Idle'))
+            
             disp('Start offline collection')
+            MAT_FILE_PATH = json.path
+            disp('Start collection.')
+            dataServer.Open();
+            
+            STATE = 'Busy'
         end
     catch
-        disp('Not offline collection, continue')
+        disp('Not start collection, continue')
+    end
+    
+    % Stop Collection
+    try
+        if strcmp(json.cmd, 'jieshucaiji')
+            assert(strcmp(STATE, 'Busy'))
+            
+            disp('Stop offline collection')
+            dataServer.Close();
+            disp('Stop collection.')
+            
+            data = dataServer.GetBufferData;
+            save(MAT_FILE_PATH, 'data')
+            
+            disp(MAT_FILE_PATH)
+            
+            dataServer.ringBuffer.Reset;
+            
+            STATE = 'Idle'
+        end
+    catch
+        disp('Not stop collection, continue')
     end
 end
 

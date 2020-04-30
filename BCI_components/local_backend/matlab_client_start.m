@@ -1,3 +1,11 @@
+global MAT_FILE_PATH
+global MODEL_FILE_PATH
+MAT_FILE_PATH = 'latest_data.mat';
+MODEL_FILE_PATH = 'latest_model.mat';
+
+global STATE
+STATE = 'Idle'
+
 % Init dataServer
 global dataServer
 device = 'DSI-24';
@@ -21,6 +29,10 @@ set(TCPIP_Client,'Timeout', 30)
 fopen(TCPIP_Client);
 flushinput(TCPIP_Client)
 
+fwrite(TCPIP_Client, jsonencode(struct('mode', 'accept',...
+    'cmd', 'backend',...
+    'timestamp', '0.00')))
+
 % Setup and start KeepAliveTimer
 KeepAliveTimer = timer(...
     'Name', 'KeepAliveTimer',...
@@ -29,7 +41,7 @@ KeepAliveTimer = timer(...
     'ErrorFcn', 'matlab_client_stop',...
     'ExecutionMode', 'fixedRate',...
     'BusyMode', 'queue');
-start(KeepAliveTimer)
+% start(KeepAliveTimer)
 
 % Setup and start MainLoopTimer
 MainLoopTimer = timer(...

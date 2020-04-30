@@ -3,6 +3,7 @@
 import os
 import time
 import threading
+import traceback
 from local_profile import RealtimeReply, RuntimeError, logger
 
 # Real-time reply instance
@@ -171,6 +172,11 @@ class Worker():
         logger.debug(f'Record path stops in {path}')
         logger.info('Record finished.')
 
+    def accept_backend(self, timestamp=0, send=send):
+        self.send_backend = send
+        logger.info('Backend connection established.')
+        pass
+
     def offline_kaishicaiji(self, shujulujingqianzhui, timestamp=0, send=send):
         """Start offline collection
 
@@ -202,7 +208,15 @@ class Worker():
 
         # Workload
         self.get_ready(state='Offline')
-        path = f'{shujulujingqianzhui}.cnt'
+        path = f'{shujulujingqianzhui}.mat'
+
+        try:
+            self.send_backend(dict(cmd='kaishicaiji',
+                                   path=path))
+        except:
+            logger.info('Fail to start offline recording in backend.')
+            traceback.print_exc()
+
         # Start self.record function as separate daemon threading
         t = threading.Thread(target=self.record, args=(path,))
         t.setDaemon(True)
@@ -229,6 +243,12 @@ class Worker():
 
         # workload
         self.state = 'Idle'
+
+        try:
+            self.send_backend(dict(cmd='jieshucaiji'))
+        except:
+            logger.info('Fail to stop offline recording in backend.')
+            traceback.print_exc()
 
         logger.debug('Stopped offline collection.')
         return 0

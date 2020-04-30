@@ -1,8 +1,8 @@
 % Settings
-DataPath = 'data.mat'
-ModelPath = 'model.mat'
+global MAT_FILE_PATH
+global MODEL_FILE_PATH
 
-offlineData = load(DataPath)
+offlineData = load(MAT_FILE_PATH)
 
 data = offlineData.data;
 e = size(data, 2);
@@ -15,4 +15,4 @@ offlineData.data = data;
 
 [Output_acc, Max_line, filter, model_final, mean_temp_final, std_temp_final] = model_dry(offlineData);
 
-save(ModelPath, 'Max_line', 'filter', 'model_final', 'mean_temp_final', 'std_temp_final');
+save(MODEL_FILE_PATH, 'Max_line', 'filter', 'model_final', 'mean_temp_final', 'std_temp_final');
