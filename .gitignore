@@ -1,5 +1,6 @@
 *.log
 _*
 *.zip
+*.rar
 *.mat
 DataShop
