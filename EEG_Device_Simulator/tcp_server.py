@@ -1,8 +1,14 @@
 
 import numpy as np
 import time
+import os
+import sys
 import struct
 import socket
+
+print(__file__)  # noqa
+sys.path.append(os.path.dirname(__file__))  # noqa
+
 from local_profile import IP, PORT, BUF_SIZE, NUM_CHANNEL, SFREQ, logger
 
 logger.info('---- New Session ----')

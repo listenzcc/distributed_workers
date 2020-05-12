@@ -1,10 +1,15 @@
 """ TCP server of BCI. """
 import os
+import sys
 import time
 import json
 import socket
 import threading
 import traceback
+
+print(__file__)  # noqa
+sys.path.append(os.path.dirname(__file__))  # noqa
+
 from worker import Worker
 from local_profile import IP, PORT, BUF_SIZE
 from local_profile import logger, RealtimeReply, RuntimeError

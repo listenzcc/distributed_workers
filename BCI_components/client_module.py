@@ -4,8 +4,13 @@ import socket
 import time
 import json
 import os
+import sys
 import threading
 import traceback
+
+print(__file__)  # noqa
+sys.path.append(os.path.dirname(__file__))  # noqa
+
 from local_profile import IP, PORT, BUF_SIZE  # , logger
 
 from logger import Logger

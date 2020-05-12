@@ -1,8 +1,12 @@
 """ TCP client for test. """
 import os
+import sys
 import time
 import json
 import threading
+
+print(__file__)  # noqa
+sys.path.append(os.path.dirname(__file__))  # noqa
 
 from client_module import new_client, listen, logger, CurrentDirectory
 

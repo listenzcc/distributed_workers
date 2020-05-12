@@ -1,9 +1,13 @@
 """ BCI worker. """
 
 import os
+import sys
 import time
 import threading
 import traceback
+
+print(__file__)  # noqa
+sys.path.append(os.path.dirname(__file__))  # noqa
 from local_profile import RealtimeReply, RuntimeError, logger
 
 # Real-time reply instance
