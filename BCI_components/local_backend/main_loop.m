@@ -64,6 +64,7 @@ try
         end
     end
 catch
+    lasterror
     disp('Data is not json, ignore')
     return
 end
@@ -72,6 +73,7 @@ for json = jsons
     try
         json = jsondecode(char(json));
     catch
+        lasterror
         disp('Not a json, ignore')
         continue
     end
@@ -90,6 +92,7 @@ for json = jsons
             STATE = 'Busy'
         end
     catch
+        lasterror
         disp('Not start collection, continue')
     end
     
@@ -116,6 +119,7 @@ for json = jsons
             STATE = 'Idle'
         end
     catch
+        lasterror
         disp('Not stop collection, continue')
     end
     
@@ -148,6 +152,7 @@ for json = jsons
             
         end
     catch
+        lasterror
         disp('No model building, continue')
         % keyboard
     end
@@ -172,6 +177,7 @@ for json = jsons
                 'timestamp', num2str(posixtime(datetime('now'))))))
         end
     catch
+        lasterror
         disp('Not query, continue')
     end
 end
