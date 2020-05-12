@@ -148,7 +148,8 @@ for json = jsons
             
         end
     catch
-        disp('Not model building, continue')
+        disp('No model building, continue')
+        % keyboard
     end
     
     % Query
