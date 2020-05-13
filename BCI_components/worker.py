@@ -382,6 +382,8 @@ class Worker():
         # Remember Send-to-UI method,
         # as Start online collection can only be triggered by UI.
         self.get_ready(state='Online',
+                       moxinglujing=moxinglujing,
+                       shujulujing=path,
                        send_UI=send)
 
         try:
