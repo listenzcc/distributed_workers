@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>How to Use BCI</title>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        
+    </head>
+    <body class="vscode-light">
+        <h1 id="how-to-use-bci">How to Use BCI</h1>
+<ul>
+<li><a href="#how-to-use-bci">How to Use BCI</a>
+<ul>
+<li><a href="#components">Components</a></li>
+<li><a href="#start-order">Start order</a></li>
+<li><a href="#server-component">Server component</a></li>
+<li><a href="#client-component">Client component</a>
+<ul>
+<li><a href="#offline-mode">OFFLINE mode</a></li>
+<li><a href="#online-mode">ONLINE mode</a></li>
+</ul>
+</li>
+<li><a href="#eeg-component">EEG component</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="components">Components</h2>
+<p>Table of components</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server</td>
+<td>Main server component</td>
+<td><a href="./server.py">server.py</a></td>
+</tr>
+<tr>
+<td>Client</td>
+<td>UI and Game simulators, in OFFLINE mode</td>
+<td><a href="./client_offline.py">client_offline.py</a></td>
+</tr>
+<tr>
+<td>Client</td>
+<td>UI and Game simulators, in ONLINE mode</td>
+<td><a href="./client_online.py">client_online.py</a></td>
+</tr>
+<tr>
+<td>EEG</td>
+<td>EEG device simulator</td>
+<td><a href="../EEG_Device_Simulator/tcp_server.py">tcp_server.py</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="start-order">Start order</h2>
+<p>One should follow the order to start</p>
+<ol>
+<li>Run EEG simulator</li>
+</ol>
+<pre><code class="language-cmd"><div>:: Starts EEG simulator
+<span class="hljs-built_in">cd</span> [Directory of EEG simulator]
+python tcp_server.py
+</div></code></pre>
+<ol start="2">
+<li>Run Server component</li>
+</ol>
+<pre><code class="language-cmd"><div>:: Starts Server component
+<span class="hljs-built_in">cd</span> [Directory of BCI]
+python server.py
+</div></code></pre>
+<ol start="3">
+<li>Run Client component (OFFLINE or ONLINE mode)</li>
+</ol>
+<ul>
+<li>OFFLINE mode</li>
+</ul>
+<pre><code class="language-cmd"><div>:: Starts Client component <span class="hljs-keyword">in</span> OFFLINE <span class="hljs-built_in">mode</span>
+<span class="hljs-built_in">cd</span> [Directory of BCI]
+python client_offline.py
+</div></code></pre>
+<ul>
+<li>ONLINE mode</li>
+</ul>
+<pre><code class="language-cmd"><div>:: Starts Client component <span class="hljs-keyword">in</span> ONLINE <span class="hljs-built_in">mode</span>
+<span class="hljs-built_in">cd</span> [Directory of BCI]
+python client_online.py
+</div></code></pre>
+<h2 id="server-component">Server component</h2>
+<p>The main TCP server of the BCI software, containing the core functions.</p>
+<p>It receives TCP connections from UI and Game for BCI controlling,
+and it operates backend matlab scripts for BCI computing.</p>
+<h2 id="client-component">Client component</h2>
+<h3 id="offline-mode">OFFLINE mode</h3>
+<h3 id="online-mode">ONLINE mode</h3>
+<h2 id="eeg-component">EEG component</h2>
+
+    </body>
+    </html>
