@@ -2,7 +2,8 @@
 
 - [How to Use BCI](#how-to-use-bci)
   - [Components](#components)
-  - [Start order](#start-order)
+  - [Start testing demo](#start-testing-demo)
+    - [Start BCI system](#start-bci-system)
   - [Server component](#server-component)
   - [Client component](#client-component)
     - [OFFLINE mode](#offline-mode)
@@ -20,12 +21,11 @@ Table of components
 | Client | UI and Game simulators, in ONLINE mode  | [client_online.py](./client_online.py)                 |
 | EEG    | EEG device simulator                    | [tcp_server.py](../EEG_Device_Simulator/tcp_server.py) |
 
-## Start order
+## Start testing demo
 
 One should follow the order to start the testing demo.
 
-1. Run EEG simulator
-
+1. Run EEG simulator  
     Start EEG device simulator.
     When BCI is working, it will feed simulated data to MATLAB backend.
 
@@ -60,13 +60,30 @@ One should follow the order to start the testing demo.
         ```
 
     - ONLINE mode
-        The **feedback** mode, server will read EEG data and a pre-trained model, 
+        The **feedback** mode, server will read EEG data and a pre-trained model,
 
         ```cmd
         :: Starts Client component in ONLINE mode
         cd [Directory of BCI]
         python client_online.py
         ```
+
+4. The dataset will be stored in [DataShop](./DataShop) in [Subject00](./DataShop/Subject00) folder,  
+   the [Data](./DataShop/Subject00/Data) folder contains **Offline data**,  
+   the [OnlineData](./DataShop/Subject00/OnlineData) folder contains **Online data**,  
+   and the model will be stored in [Model](./DataShop/Subject00/Model) folder.
+
+### Start BCI system
+
+Run Server component to start BCI system.
+
+It is the **CORE** component of the BCI software.
+
+  ```cmd
+  :: Starts Server component
+  cd [Directory of BCI]
+  python server.py
+  ```
 
 ## Server component
 
