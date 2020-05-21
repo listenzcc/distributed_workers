@@ -3,10 +3,10 @@
     <head>
         <meta charset="UTF-8">
         <title>How to Use BCI</title>
-        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
-        
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
         <style>
 .task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
 </style>
@@ -18,16 +18,19 @@
             }
         </style>
         
-        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
     </head>
     <body class="vscode-light">
         <h1 id="how-to-use-bci">How to Use BCI</h1>
 <ul>
 <li><a href="#how-to-use-bci">How to Use BCI</a>
 <ul>
+<li><a href="#call-for-help">Call for help</a></li>
 <li><a href="#components">Components</a></li>
-<li><a href="#start-order">Start order</a></li>
+<li><a href="#start-bci-system">Start BCI system</a></li>
+<li><a href="#start-testing-demo">Start testing demo</a></li>
 <li><a href="#server-component">Server component</a></li>
+<li><a href="#backend-component">Backend component</a></li>
 <li><a href="#client-component">Client component</a>
 <ul>
 <li><a href="#offline-mode">OFFLINE mode</a></li>
@@ -38,6 +41,8 @@
 </ul>
 </li>
 </ul>
+<h2 id="call-for-help">Call for help</h2>
+<p>Send to <a href="listenzcc@mail.bnu.edu.cn">Email</a> for help.</p>
 <h2 id="components">Components</h2>
 <p>Table of components</p>
 <table>
@@ -53,6 +58,11 @@
 <td>Server</td>
 <td>Main server component</td>
 <td><a href="./server.py">server.py</a></td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Matlab computation backend</td>
+<td><a href="./local_backend">local_backend</a></td>
 </tr>
 <tr>
 <td>Client</td>
@@ -71,47 +81,132 @@
 </tr>
 </tbody>
 </table>
-<h2 id="start-order">Start order</h2>
-<p>One should follow the order to start</p>
-<ol>
-<li>Run EEG simulator</li>
-</ol>
-<pre><code class="language-cmd"><div>:: Starts EEG simulator
-<span class="hljs-built_in">cd</span> [Directory of EEG simulator]
-python tcp_server.py
-</div></code></pre>
-<ol start="2">
-<li>Run Server component</li>
-</ol>
+<h2 id="start-bci-system">Start BCI system</h2>
+<p>Run Server component to start BCI system.</p>
+<p>It is the <strong>CORE</strong> component of the BCI software.</p>
 <pre><code class="language-cmd"><div>:: Starts Server component
 <span class="hljs-built_in">cd</span> [Directory of BCI]
 python server.py
 </div></code></pre>
-<ol start="3">
-<li>Run Client component (OFFLINE or ONLINE mode)</li>
-</ol>
+<p>The settings are stored in <a href="./local_profile.py">local_profile.py</a>.<br>
+<strong>Be sure setting them right before starting the server</strong></p>
+<p>Following is the customized parameters.</p>
+<table>
+<thead>
+<tr>
+<th>Vars</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IP</td>
+<td>The IP address of the server</td>
+<td>'localhost'</td>
+</tr>
+<tr>
+<td>PORT</td>
+<td>The port of the server</td>
+<td>65535</td>
+</tr>
+<tr>
+<td>IP_EEG_DEVICE</td>
+<td>The IP address of the EEG device</td>
+<td>'127.0.0.1'</td>
+</tr>
+<tr>
+<td>PORT_EEG_DEVICE</td>
+<td>The port of the EEG device</td>
+<td>8844</td>
+</tr>
+</tbody>
+</table>
+<h2 id="start-testing-demo">Start testing demo</h2>
+<p>The testing demo is designed for verifying the BCI component is working as expected.
+One should follow the order to start the testing demo,
+all customized parameters should stay as default.</p>
+<ol>
+<li>
+<p>Run EEG simulator<br>
+Start EEG device simulator.
+When BCI is working, it will feed simulated data to MATLAB backend.</p>
+<pre><code class="language-cmd"><div>:: Starts EEG simulator
+<span class="hljs-built_in">cd</span> [Directory of EEG simulator]
+python tcp_server.py
+</div></code></pre>
+</li>
+<li>
+<p>Run Server component</p>
+<p>Start Server component, the <strong>CORE</strong> component of the BCI software.</p>
+<pre><code class="language-cmd"><div>:: Starts Server component
+<span class="hljs-built_in">cd</span> [Directory of BCI]
+python server.py
+</div></code></pre>
+</li>
+<li>
+<p>Run Client component (OFFLINE or ONLINE mode)</p>
+<p>Start simulate a BCI experiment.</p>
 <ul>
-<li>OFFLINE mode</li>
-</ul>
+<li>
+<p>OFFLINE mode
+The <strong>no feedback</strong> mode, server will read EEG data and train a model.
+The simulation lasts about 200 seconds.</p>
 <pre><code class="language-cmd"><div>:: Starts Client component <span class="hljs-keyword">in</span> OFFLINE <span class="hljs-built_in">mode</span>
 <span class="hljs-built_in">cd</span> [Directory of BCI]
 python client_offline.py
 </div></code></pre>
-<ul>
-<li>ONLINE mode</li>
-</ul>
+</li>
+<li>
+<p>ONLINE mode
+The <strong>feedback</strong> mode, server will read EEG data and a pre-trained model,</p>
 <pre><code class="language-cmd"><div>:: Starts Client component <span class="hljs-keyword">in</span> ONLINE <span class="hljs-built_in">mode</span>
 <span class="hljs-built_in">cd</span> [Directory of BCI]
 python client_online.py
 </div></code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>The dataset will be stored in <a href="./DataShop">DataShop</a> in <a href="./DataShop/Subject00">Subject00</a> folder,<br>
+the <a href="./DataShop/Subject00/Data">Data</a> folder contains <strong>Offline data</strong>,<br>
+the <a href="./DataShop/Subject00/OnlineData">OnlineData</a> folder contains <strong>Online data</strong>,<br>
+and the model will be stored in <a href="./DataShop/Subject00/Model">Model</a> folder.</p>
+</li>
+</ol>
 <h2 id="server-component">Server component</h2>
 <p>The main TCP server of the BCI software, containing the core functions.</p>
 <p>It receives TCP connections from UI and Game for BCI controlling,
 and it operates backend matlab scripts for BCI computing.</p>
+<h2 id="backend-component">Backend component</h2>
+<p>We use MATLAB scripts to perform BCI computation.</p>
+<ul>
+<li>
+<p>In <strong>OFFLINE</strong> mode,
+the backend will be recording EEG data,
+and train BCI model.</p>
+</li>
+<li>
+<p>In <strong>ONLINE</strong> mode,
+the backend will be recording EEG data,
+and use a BCI model to generate real-time label.</p>
+</li>
+</ul>
+<p>The backend component is maintained and commanded automatically by the <strong>server component</strong>,
+no action is in need for users.</p>
 <h2 id="client-component">Client component</h2>
 <h3 id="offline-mode">OFFLINE mode</h3>
+<p>Simulate a classic <strong>OFFLINE</strong> experiment session.</p>
 <h3 id="online-mode">ONLINE mode</h3>
+<p>Simulate a classic <strong>ONLINE</strong> experiment session.</p>
 <h2 id="eeg-component">EEG component</h2>
+<p>Simulate a <strong>DRY EEG DEVICE</strong>,
+which has <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>25</mn><mi>c</mi><mi>h</mi><mi>a</mi><mi>n</mi><mi>n</mi><mi>e</mi><mi>l</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">25 channels</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord mathdefault">c</span><span class="mord mathdefault">h</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">n</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">s</span></span></span></span>, and the sampling frequency is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>300</mn><mi>H</mi><mi>z</mi></mrow><annotation encoding="application/x-tex">300 Hz</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">0</span><span class="mord">0</span><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span></span></span></span>.</p>
+<p>The component will generate <em>fake</em> EEG data as <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>s</mi><mi>e</mi><mi>c</mi><mi>o</mi><mi>n</mi><mi>d</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">4 seconds</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault">s</span></span></span></span> long block,
+the blocks switch among <em>resting</em>, <em>fake</em> and <em>real</em> motion imaging states.
+It will translate them through TCP socket as an EEG device will do.</p>
+<p>The customized parameters can be found in a <a href="../EEG_Device_Simulator/local_profile.py">profile file</a>.
+Even though, I will not recommend to change it manually, which may cause instability.</p>
 
     </body>
     </html>
