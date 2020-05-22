@@ -60,8 +60,8 @@ if __name__ == '__main__':
     time.sleep(0.1)
 
     # Correct package, query
-    # 2: Real motion
-    # 1: Fake motion
+    # 1: Real motion
+    # 2: Fake motion
     for j in range(10):
         send(dict(mode='Query',
                   chixushijian='3.0',

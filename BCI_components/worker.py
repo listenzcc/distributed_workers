@@ -187,8 +187,8 @@ class Worker():
                                     timestamp=time.time()))
 
         zhenshibiaoqian = self.latest_zhenshibiaoqian
-        if all([gujibiaoqian == '2',
-                zhenshibiaoqian == '2']):
+        if all([gujibiaoqian == '1',
+                zhenshibiaoqian == '1']):
             self.send_UI(dict(mode='Online',
                               cmd='kaishiyundong',
                               timestamp=time.time()))
