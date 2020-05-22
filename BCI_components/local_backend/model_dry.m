@@ -1,21 +1,43 @@
 function [Output_acc, Max_line, filter,model_final, mean_temp_final, std_temp_final] = model_dry(offlineData)
 % circBuff = load('C:\Users\NICA_BCI1\Desktop\test2\1_1_1_1\Data_MI1_20_Session1.txt');
 
-%%% ÊäÈëcircBuff Numtrial
+
+channelNum=24;
+lpass=8;
+hpass=30;
+fs=300;
+filterorder = 3;
+
+%%% ï¿½ï¿½ï¿½ï¿½circBuff Numtrial
 circBuff = offlineData.data;
 
 % circBuff = load('C:\Users\NICA_BCI1\Desktop\test3\20190412_XuelinMa_1_26\Data_MI1_10_Session6.txt');
 data=circBuff(1:end-1,:);
 label =circBuff(end,:);
+
+[group1, group2] = parse_label(label, 4*fs);
+
+m1 = nan(length(group1), 1);
+m2 = nan(length(group2), 1);
+
+for j = 1 : length(group1)
+    m1(j) = group1{j}(2, 1);
+end
+
+for j = 1 : length(group2)
+    m2(j) = group2{j}(2, 1);
+end
+
+
 % label_loc=find(label>0);
-m1=find(diff(label)==1)+1;
-m2=find(diff(label)==2)+1;
+% m1=find(diff(label)==1)+1;
+% m2=find(diff(label)==2)+1;
 % label(m2)
-% m1 = double(find(fix(label) ==1));%%%%ÕÒ±êÇ© left Î»ÖÃ
-% m2 = double(find(fix(label) ==2));%%%%ÕÒ±êÇ© rest Î»ÖÃ
+% m1 = double(find(fix(label) ==1));%%%%ï¿½Ò±ï¿½Ç© left Î»ï¿½ï¿½
+% m2 = double(find(fix(label) ==2));%%%%ï¿½Ò±ï¿½Ç© rest Î»ï¿½ï¿½
 Numtrial = min(length(m1), length(m2));
 
-% %% È¥µô¶àÓàµÄµ¼Áª£¬Ê£ÏÂ32µ¼
+% %% È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿?32ï¿½ï¿½
 % a = ones(1,66);
 % b= [1 2 3 4 5 6 7 9 11 13 14 15 23 24 32 33 34 42 43 44 45 47 49 51 52 53 54 58 59 60 62 64 65 66];
 % a(b) = 0;
@@ -29,15 +51,13 @@ Numtrial = min(length(m1), length(m2));
 %   data(i,:)=data(i,:)-data_mean;
 % end
 
-channelNum=24;
-lpass=8;
-hpass=30;
-fs=300;
-filterorder = 3;
 %%
-for i=1:Numtrial  %%%%ÕâÀïÒªÌîtrailµÄ¸öÊý
-    data1(:,:,i)=data(:,m1(i)+1:m1(i)+4*fs);  %% latencyÖ®ºó0-4s
-    data2(:,:,i)=data(:,m2(i)+1:m2(i)+4*fs);  %% latencyÖ®ºó0-4s
+% data1 = [];
+% data2 = [];
+% R = [];
+for i=1:Numtrial  %%%%ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½trailï¿½Ä¸ï¿½ï¿½ï¿½
+    data1(:,:,i)=data(:,m1(i)+1:m1(i)+4*fs);  %% latencyÖ®ï¿½ï¿½0-4s
+    data2(:,:,i)=data(:,m2(i)+1:m2(i)+4*fs);  %% latencyÖ®ï¿½ï¿½0-4s
 
     filtercutoff = [2*lpass/fs 2*hpass/fs];
     [f_b, f_a] = butter(filterorder,filtercutoff);
@@ -69,7 +89,7 @@ data2 = data2(:,0.5*fs+1:3.5*fs,:);
 % index1=find(label==1);
 % index2=find(label==2);
 
-data11(:,:,1:Numtrial)=data1;  % Ã¿Ò»ÀàtrialsÊýÄ¿
+data11(:,:,1:Numtrial)=data1;  % Ã¿Ò»ï¿½ï¿½trialsï¿½ï¿½Ä¿
 data11(:,:,Numtrial +1:Numtrial *2)=data2;
 
 label1(1:Numtrial,:)=1;
@@ -77,7 +97,7 @@ label1(Numtrial+1:Numtrial *2,:)=2;
 index11=find(label1==1);
 index21=find(label1==2);
 
-Indices1 = crossvalind('Kfold',Numtrial ,5);   %Ê®ÕÛ½»²æÑéÖ¤
+Indices1 = crossvalind('Kfold',Numtrial ,5);   %Ê®ï¿½Û½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤
 
 for r=1:5
     
@@ -85,58 +105,58 @@ for r=1:5
     train1=~test1;
     test=[index11(test1,:);index21(test1,:)];
     train=[index11(train1,:);index21(train1,:)];
-    label_train=label1(train,:);   %ÑµÁ·±êÇ©
-    label_test=label1(test,:);     %²âÊÔ±êÇ©
+    label_train=label1(train,:);   %Ñµï¿½ï¿½ï¿½ï¿½Ç©
+    label_test=label1(test,:);     %ï¿½ï¿½ï¿½Ô±ï¿½Ç©
     
     MI_index{1}=index11(train1);
-    MI_index{2}=index21(train1);       %ÑµÁ·Ñù±¾
+    MI_index{2}=index21(train1);       %Ñµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     
     for j=1:2
-        index=MI_index{j};%Ñ¡È¡1Àà
+        index=MI_index{j};%Ñ¡È¡1ï¿½ï¿½
         x=length(index);
-        for k=1:x               %k: Ñù±¾¸öÊý
-            temp_data=data11(:,:,index(k));  %Ñ¡È¡Ä³Ò»ÊÔ´ÎÑù±¾
-            R(:,:,k)=(temp_data*temp_data')/trace(temp_data*temp_data');% ÇóÐ­·½²î¾ØÕó
+        for k=1:x               %k: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            temp_data=data11(:,:,index(k));  %Ñ¡È¡Ä³Ò»ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½
+            R(:,:,k)=(temp_data*temp_data')/trace(temp_data*temp_data');% ï¿½ï¿½Ð­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
         end
-        R_m(:,:,j)=mean(R,3); %¶ÔÄ³Ò»ÀàÑù±¾ËùÓÐÊÔ´ÎµÄÐ­·½²î¾ØÕóÇóÆ½¾ù
+        R_m(:,:,j)=mean(R,3); %ï¿½ï¿½Ä³Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Îµï¿½Ð­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿?
     end
     Rsum=sum(R_m,3);
-    Rl_m=R_m(:,:,1); %´ú±íµÚÒ»ÀàµÄÆ½¾ùÐ­·½²î¾ØÕó
-    Rr_m=R_m(:,:,2); %´ú±íµÚ2ÀàµÄÆ½¾ùÐ­·½²î¾ØÕó
+    Rl_m=R_m(:,:,1); %ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Æ½ï¿½ï¿½Ð­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    Rr_m=R_m(:,:,2); %ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½Æ½ï¿½ï¿½Ð­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     
-    [EVecsum,EValsum] = eig(Rsum); %ÌØÕ÷Öµ·Ö½â
+    [EVecsum,EValsum] = eig(Rsum); %ï¿½ï¿½ï¿½ï¿½Öµï¿½Ö½ï¿½
     %   W = sqrt(inv(EValsum)) * EVecsum';
-    [EValsum,ind] = sort(diag(EValsum),'descend'); %°´ÌØÕ÷Öµ½µÐòÅÅÁÐ
+    [EValsum,ind] = sort(diag(EValsum),'descend'); %ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     EVecsum = EVecsum(:,ind);
     
     %   Find Whitening Transformation Matrix - Ramoser Equation (3)
-    W = sqrt(inv(diag(EValsum))) * EVecsum'; %Çó½â°×»¯¾ØÕó
+    W = sqrt(inv(diag(EValsum))) * EVecsum'; %ï¿½ï¿½ï¿½×»ï¿½ï¿½ï¿½ï¿½ï¿½
     % W = sqrt(inv(EValsum)) * EVecsum';
-    Yl = W * Rl_m * W'; %¾ØÕóÖØ¹¹
+    Yl = W * Rl_m * W'; %ï¿½ï¿½ï¿½ï¿½ï¿½Ø¹ï¿½
     Yr = W * Rr_m * W';
     
-    [Bl,Dl]=eig(Yl); %ÌØÕ÷Öµ·Ö½â
+    [Bl,Dl]=eig(Yl); %ï¿½ï¿½ï¿½ï¿½Öµï¿½Ö½ï¿½
     [Br,Dr]=eig(Yr);
     Dsum=Dl+Dr;
     
     %sort ascending by default
-    [Dl,ind] = sort(diag(Dl)); Bl = Bl(:,ind); %µÚÒ»ÀàÌØÕ÷ÏòÁ¿¾ØÕó
+    [Dl,ind] = sort(diag(Dl)); Bl = Bl(:,ind); %ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     %     result=Bl'*W;
-    resultl=Bl'*W;  %µÚÒ»ÀàÂË²¨Æ÷¾ØÕó
+    resultl=Bl'*W;  %ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     [Dr,ind] = sort(diag(Dr)); Br = Br(:,ind);
     resultr=Br'*W;
     result(:,:,1)=resultl;
     result(:,:,2)=resultr;
     
-    %% È¡Ç°¼¸¸öÌØÕ÷ÏòÁ¿×÷ÎªÂË²¨Æ÷Çó³öÃ¿Ò»¸öÑù±¾µÄÌØÕ÷£¬ÐèÒª¿´Çó½âÌØÕ÷µÄÀíÂÛ¹«Ê½
+    %% È¡Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û¹ï¿½Ê½
     clear V feature f1 Z
-    for k=24:-1:20  % k£ºÂË²¨Æ÷¾ØÕó64ÐÐµ½55ÐÐÈ¡Öµ
+    for k=24:-1:20  % kï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½64ï¿½Ðµï¿½55ï¿½ï¿½È¡Öµ
         % k=60;
-        for j=1:Numtrial *2   % j£ºÑù±¾ÐòÁÐ
-            for i=1:2 % i £ºÀà±ðÐòÁÐ
-                for p=24:-1:k % P£ºÂË²¨ºó¾ØÕóÐòÁÐ
-                    Z(25-p,:)=result(p,:,i)*data11(:,:,j); %Z£ºÂË²¨ºó¾ØÕó
-                    V(i,25-p)=var(Z(25-p,:)); %V£º·½²î¾ØÕó
+        for j=1:Numtrial *2   % jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            for i=1:2 % i ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
+                for p=24:-1:k % Pï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
+                    Z(25-p,:)=result(p,:,i)*data11(:,:,j); %Zï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
+                    V(i,25-p)=var(Z(25-p,:)); %Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
                 end
             end
             [m,n]=size(V);
@@ -151,7 +171,7 @@ for r=1:5
             feature(j,:)=f1;
         end
         %% svm
-        %¹éÒ»»¯
+        %ï¿½ï¿½Ò»ï¿½ï¿½
         data111=feature;
         d=size(data111,2);
         mean_temp = [];
@@ -170,10 +190,10 @@ for r=1:5
         data_train=norm_sample(train,:);
         data_test=norm_sample(test,:);
         
-        model = svmtrain(label_train,data_train, '-t 0 -c 1'); %½¨Á¢SVMÄ£ÐÍ
+        model = svmtrain(label_train,data_train, '-t 0 -c 1'); %ï¿½ï¿½ï¿½ï¿½SVMÄ£ï¿½ï¿½
         
-        [labelpre,accuracy,dec]=svmpredict(label_test, data_test,model); %²âÊÔ
-        acc(r,25-k)=accuracy(1,1); %ÕýÈ·ÂÊ
+        [labelpre,accuracy,dec]=svmpredict(label_test, data_test,model); %ï¿½ï¿½ï¿½ï¿½
+        acc(r,25-k)=accuracy(1,1); %ï¿½ï¿½È·ï¿½ï¿½
         Model{r,25-k}=model;
         Feature{r,25-k}=feature;
         M_temp{r,25-k}=mean_temp;

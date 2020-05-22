@@ -94,7 +94,7 @@ class Server():
         logger.info(f'TCP Server is ready to listen on {ip}:{port}')
 
     def make_signal(self, state, interval):
-        """Simulate 3 kinds of signals
+        """Simulate 2 kinds of signals
 
         Arguments:
             state {str} -- The name of the state
@@ -106,20 +106,15 @@ class Server():
         # The length of the signal in 'second'
         num = int(SFREQ * interval)
 
-        # Rest state signal
-        if state == 'rest':
-            onepiece = np.zeros((NUM_CHANNEL)).astype(np.float)
-            return np.concatenate([onepiece for _ in range(num)])
-
-        # Fake motion signal
-        if state == 'fake':
-            onepiece = np.array(range(NUM_CHANNEL)).astype(np.float)
+        # Motion imaging signal
+        if state == 'imag':
+            onepiece = np.array(range(NUM_CHANNEL, 0, -1)).astype(np.float)
             onepiece[NUM_CHANNEL - 1] = 1
             return np.concatenate([onepiece for _ in range(num)])
 
-        # Real motion signal
-        if state == 'real':
-            onepiece = np.array(range(NUM_CHANNEL, 0, -1)).astype(np.float)
+        # Rest state signal
+        if state == 'rest':
+            onepiece = np.array(range(NUM_CHANNEL)).astype(np.float)
             onepiece[NUM_CHANNEL - 1] = 2
             return np.concatenate([onepiece for _ in range(num)])
 
@@ -140,7 +135,7 @@ class Server():
         # and I am serving.
         interval = 0.1
         passed_time = 0
-        states = ['rest', 'fake', 'rest', 'real']
+        states = ['rest', 'imag', 'rest', 'imag']
         idx = 0
         t = time.time()
         print(states[idx])

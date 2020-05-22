@@ -55,7 +55,7 @@ if __name__ == '__main__':
               shujulujingqianzhui=os.path.join(
                   CurrentDirectory, 'DataShop', subjectID, 'Data', sessionID),
               timestamp=time.time()))
-    time.sleep(200)
+    time.sleep(100)
 
     # # Wrong package, repeat start offline
     # send(dict(mode='Offline',

@@ -11,7 +11,10 @@ USE_BACKEND = True
 IP_EEG_DEVICE = '127.0.0.1'
 PORT_EEG_DEVICE = 8844
 
-logger = Logger(name='BCI', filepath=os.path.join('BCI.log')).logger
+logger = Logger(name='BCI',
+                filepath=os.path.join('BCI-{}.log').format(time.ctime()
+                                                           .replace(' ', '-')
+                                                           .replace(':', '-'))).logger
 
 
 def stamp(d):
