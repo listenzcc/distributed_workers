@@ -14,7 +14,10 @@ sys.path.append(os.path.dirname(__file__))  # noqa
 from local_profile import IP, PORT, BUF_SIZE  # , logger
 
 from logger import Logger
-logger = Logger(name='UI_GAME', filepath=os.path.join('UI_GAME.log')).logger
+logger = Logger(name='UI_GAME-{}',
+                filepath=os.path.join('UI_GAME-{}.log'.format(time.ctime()
+                                                              .replace(' ', '-')
+                                                              .replace(':', '-')))).logger
 
 CurrentDirectory = os.path.dirname(os.path.abspath(__file__))
 

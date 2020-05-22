@@ -62,13 +62,13 @@ if __name__ == '__main__':
     # Correct package, query
     # 1: Real motion
     # 2: Fake motion
-    for j in range(10):
+    for j in range(30):
         send(dict(mode='Query',
                   chixushijian='3.0',
                   zhenshibiaoqian=f'{j % 2 + 1}',
                   timestamp=time.time()),
              client_GAME)
-        time.sleep(5)
+        time.sleep(1)
 
     # Correct package, stop online
     send(dict(mode='Online',
