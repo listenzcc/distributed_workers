@@ -152,30 +152,6 @@ class Worker():
                     send=send)
             return 1
 
-    # def record(self, path, model_msg=''):
-    #     """Start data record
-
-    #     Arguments:
-    #         path {str} -- The path of data file
-
-    #     Keyword Arguments:
-    #         model_msg {str} -- Model information, if model is available (ONLINE record) (default: {''})
-    #     """
-    #     logger.info('Record starts.')
-    #     logger.debug(f'Record path starts in {path}')
-    #     # Record one line every 0.1 seconds,
-    #     # until STATE is switched to 'Idle' again.
-    #     with open(path, 'w') as f:
-    #         f.write(f'{model_msg}\n')
-    #         f.write('-' * 40 + 'starts.\n')
-    #         # Record until STATE is switched to 'Idle'
-    #         while self.state not in ['Idle']:
-    #             f.write('{} - {}\n'.format(time.time(), time.ctime()))
-    #             time.sleep(0.1)
-    #         f.write('-' * 40 + 'ends.\n')
-    #     logger.debug(f'Record path stops in {path}')
-    #     logger.info('Record finished.')
-
     def accept_backend(self, timestamp=0, send=send):
         self.send_backend = send
         logger.info('Backend connection established.')
@@ -219,6 +195,27 @@ class Worker():
 
         pass
 
+    def force_Idle(self):
+        """Force State to Idle, used for kaishicaiji by-force.
+        """
+        if self.state == 'Idle':
+            return 0
+
+        msg = f'Current state is {self.state}, setting it to Idle by-force.'
+        logger.info(msg)
+        logger.debug(msg)
+
+        # Stop backend
+        logger.debug('Send jieshucaiji to backend.')
+        try:
+            self.send_backend(dict(cmd='jieshucaiji'))
+        except:
+            logger.info('Fail to stop offline recording in backend.')
+            traceback.print_exc()
+
+        # workload
+        self.state = 'Idle'
+
     def offline_kaishicaiji(self, shujulujingqianzhui, timestamp=0, send=send):
         """Start offline collection
 
@@ -238,6 +235,7 @@ class Worker():
         send(real_time_reply.OK())
 
         # The state should be 'Idle'
+        self.force_Idle()
         if self.check_state('Idle', 'offline_kaishicaiji', send=send) == 1:
             return 1
 
@@ -373,6 +371,7 @@ class Worker():
             return 1
 
         # The state should be 'Idle'
+        self.force_Idle()
         if self.check_state('Idle', 'online_kaishicaiji', send=send) == 1:
             return 1
 

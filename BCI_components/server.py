@@ -19,6 +19,7 @@ import local_profile
 CurrentDirectory = os.path.dirname(local_profile.__file__)
 
 logger.info('---- New Session ----')
+logger.info('---- Version 2020-05-29 ----')
 
 
 # Worker instance
