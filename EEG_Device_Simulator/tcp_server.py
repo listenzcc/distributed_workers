@@ -106,17 +106,37 @@ class Server():
         # The length of the signal in 'second'
         num = int(SFREQ * interval)
 
+        if self.new_switch:
+            num_trigger = int(SFREQ * 0.01)
+            self.new_switch = False
+        else:
+            num_trigger = 0
+
         # Motion imaging signal
         if state == 'imag':
+            # Make data
             onepiece = np.array(range(NUM_CHANNEL, 0, -1)).astype(np.float)
-            onepiece[NUM_CHANNEL - 1] = 1
-            return np.concatenate([onepiece for _ in range(num)])
+            onepiece[NUM_CHANNEL - 1] = 0
+            output = np.concatenate([onepiece for _ in range(num)])
+
+            # Add trigger
+            for j in range(num_trigger):
+                output[NUM_CHANNEL - 1 + j * NUM_CHANNEL] = 1
+
+            return output
 
         # Rest state signal
         if state == 'rest':
+            # Make data
             onepiece = np.array(range(NUM_CHANNEL)).astype(np.float)
-            onepiece[NUM_CHANNEL - 1] = 2
-            return np.concatenate([onepiece for _ in range(num)])
+            onepiece[NUM_CHANNEL - 1] = 0
+            output = np.concatenate([onepiece for _ in range(num)])
+
+            # Add trigger
+            for j in range(num_trigger):
+                output[NUM_CHANNEL - 1 + j * NUM_CHANNEL] = 2
+
+            return output
 
     def start(self):
         """TCP server starts
@@ -139,6 +159,10 @@ class Server():
         idx = 0
         t = time.time()
         print(states[idx])
+
+        # Whether the data slice contains a trigger on head
+        self.new_switch = True
+
         while True:
             # Make up bits according to [state] and [interval]
             bits = make_up_package(self.make_signal(state=states[idx],
@@ -148,13 +172,22 @@ class Server():
             client.sendall(bits)
 
             time.sleep(interval - (time.time()-t) % interval)
+            # Update passed_time
             passed_time += interval
-            # The state will be switched every 5 seconds
+
+            # The state will be updated every 5 seconds
             if passed_time > 5:
-                passed_time = 0
+                # Every time we update idx,
+                # new_switch should be set
+                self.new_switch = True
+
+                # Update idx
                 idx += 1
                 idx %= len(states)
                 print(states[idx])
+
+                # Reset passed_time
+                passed_time = 0
 
         client.close()
 
