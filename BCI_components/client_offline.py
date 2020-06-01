@@ -43,27 +43,21 @@ if __name__ == '__main__':
                   timestamp=time.time()))
         time.sleep(0.2)
 
-    # # Wrong package, stop offline before start
-    # send(dict(mode='Offline',
-    #           cmd='jieshucaiji',
-    #           timestamp=time.time()))
-    # time.sleep(0.5)
-
     # Correct package, start offline
+    send(dict(mode='Offline',
+              cmd='kaishicaiji',
+              shujulujingqianzhui=os.path.join(
+                  CurrentDirectory, 'DataShop', subjectID, 'Data', f'{sessionID}--'),
+              timestamp=time.time()))
+    time.sleep(10)
+
+    # Repeat start offline
     send(dict(mode='Offline',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
                   CurrentDirectory, 'DataShop', subjectID, 'Data', sessionID),
               timestamp=time.time()))
-    time.sleep(100)
-
-    # # Wrong package, repeat start offline
-    # send(dict(mode='Offline',
-    #           cmd='kaishicaiji',
-    #           shujulujingqianzhui=os.path.join(
-    #               'DataShop', subjectID, 'Data', sessionID),
-    #           timestamp=time.time()))
-    # time.sleep(0.5)
+    time.sleep(200)
 
     # Correct package, stop offline
     send(dict(mode='Offline',

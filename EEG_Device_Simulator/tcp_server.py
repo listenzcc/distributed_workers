@@ -139,55 +139,65 @@ class Server():
             return output
 
     def start(self):
-        """TCP server starts
+        """TCP server starts,
+        now it serves forever,
+        if it is disconnected, it will start a new listening immediately.
         """
-        self.server.listen(1)
-        logger.info(f'TCP Server starts listening.')
-
-        # Accept in comming connection
-        client, address = self.server.accept()
-        logger.info(f'New connection is established: {address}:{client}')
-
-        # Say hi...........
-        # client.sendall(b'hello')
-
-        # Intending I am a EEG device,
-        # and I am serving.
-        interval = 0.1
-        passed_time = 0
-        states = ['rest', 'imag', 'rest', 'imag']
-        idx = 0
-        t = time.time()
-        print(states[idx])
-
-        # Whether the data slice contains a trigger on head
-        self.new_switch = True
 
         while True:
-            # Make up bits according to [state] and [interval]
-            bits = make_up_package(self.make_signal(state=states[idx],
-                                                    interval=interval))
+            try:
+                self.server.listen(1)
+                logger.info(f'TCP Server starts listening.')
 
-            # Send bits
-            client.sendall(bits)
+                # Accept in comming connection
+                client, address = self.server.accept()
+                logger.info(
+                    f'New connection is established: {address}:{client}')
 
-            time.sleep(interval - (time.time()-t) % interval)
-            # Update passed_time
-            passed_time += interval
+                # Say hi...........
+                # client.sendall(b'hello')
 
-            # The state will be updated every 5 seconds
-            if passed_time > 5:
-                # Every time we update idx,
-                # new_switch should be set
-                self.new_switch = True
-
-                # Update idx
-                idx += 1
-                idx %= len(states)
+                # Intending I am a EEG device,
+                # and I am serving.
+                interval = 0.1
+                passed_time = 0
+                states = ['rest', 'imag', 'rest', 'imag']
+                idx = 0
+                t = time.time()
                 print(states[idx])
 
-                # Reset passed_time
-                passed_time = 0
+                # Whether the data slice contains a trigger on head
+                self.new_switch = True
+
+                while True:
+                    # Make up bits according to [state] and [interval]
+                    bits = make_up_package(self.make_signal(state=states[idx],
+                                                            interval=interval))
+
+                    # Send bits
+                    client.sendall(bits)
+
+                    time.sleep(interval - (time.time()-t) % interval)
+                    # Update passed_time
+                    passed_time += interval
+
+                    # The state will be updated every 5 seconds
+                    if passed_time > 5:
+                        # Every time we update idx,
+                        # new_switch should be set
+                        self.new_switch = True
+
+                        # Update idx
+                        idx += 1
+                        idx %= len(states)
+                        print(states[idx])
+
+                        # Reset passed_time
+                        passed_time = 0
+            except ConnectionAbortedError:
+                continue
+            except KeyboardInterrupt:
+                break
 
         client.close()
 

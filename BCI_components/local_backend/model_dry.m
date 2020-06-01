@@ -1,6 +1,12 @@
 function [Output_acc, Max_line, filter,model_final, mean_temp_final, std_temp_final] = model_dry(offlineData)
 % circBuff = load('C:\Users\NICA_BCI1\Desktop\test2\1_1_1_1\Data_MI1_20_Session1.txt');
 
+channelNum=24;
+lpass=8;
+hpass=30;
+fs=300;
+filterorder = 3;
+
 %%% 输入circBuff Numtrial
 circBuff = offlineData.data;
 
@@ -10,10 +16,15 @@ label =circBuff(end,:);
 % label_loc=find(label>0);
 m1=find(diff(label)==1)+1;
 m2=find(diff(label)==2)+1;
+
+n = length(label);
+m1(m1 > (n-4*fs)) = '';
+m2(m2 > (n-4*fs)) = '';
+
 % label(m2)
 % m1 = double(find(fix(label) ==1));%%%%找标签 left 位置
 % m2 = double(find(fix(label) ==2));%%%%找标签 rest 位置
-Numtrial = length(m1);
+Numtrial = min(length(m1), length(m2));
 
 % %% 去掉多余的导联，剩下32导
 % a = ones(1,66);
@@ -29,11 +40,7 @@ Numtrial = length(m1);
 %   data(i,:)=data(i,:)-data_mean;
 % end
 
-channelNum=24;
-lpass=8;
-hpass=30;
-fs=300;
-filterorder = 3;
+
 %%
 for i=1:Numtrial  %%%%这里要填trail的个数
     data1(:,:,i)=data(:,m1(i)+1:m1(i)+4*fs);  %% latency之后0-4s

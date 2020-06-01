@@ -51,7 +51,32 @@ if __name__ == '__main__':
     send(dict(mode='Online',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'OnlineData', sessionID),
+                  CurrentDirectory, 'DataShop', subjectID, 'OnlineData', f'{sessionID}-1'),
+              moxinglujing=os.path.join(
+                  CurrentDirectory, 'DataShop', subjectID, 'Model', models[0]),
+              timestamp=time.time()),
+         client_UI)
+
+    time.sleep(0.1)
+
+    # Correct package, query
+    # 1: Real motion
+    # 2: Fake motion
+    for j in range(30):
+        send(dict(mode='Query',
+                  chixushijian='3.0',
+                  zhenshibiaoqian=f'{j % 2 + 1}',
+                  timestamp=time.time()),
+             client_GAME)
+        time.sleep(1)
+
+    # In-correct package, start online
+    models = os.listdir(os.path.join(
+        CurrentDirectory, 'DataShop', subjectID, 'Model'))
+    send(dict(mode='Online',
+              cmd='kaishicaiji',
+              shujulujingqianzhui=os.path.join(
+                  CurrentDirectory, 'DataShop', subjectID, 'OnlineData', f'{sessionID}-2'),
               moxinglujing=os.path.join(
                   CurrentDirectory, 'DataShop', subjectID, 'Model', models[0]),
               timestamp=time.time()),

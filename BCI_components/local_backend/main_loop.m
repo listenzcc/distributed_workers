@@ -180,17 +180,16 @@ for idx = 1:length(jsons)
                 MODEL_FILE_PATH = json.moxinglujing
                 offlineData = load(MAT_FILE_PATH)
                 
-                data = offlineData.data;
-                e = size(data, 2);
-                while data(end, e) ~= 0
-                    e = e - 1;
-                end
-                e = e + 1;
-                data = data(:, e:end);
-                size(data)
-                offlineData.data = data;
-                
-                save offlineData offlineData
+                % data = offlineData.data;
+                % e = size(data, 2);
+                % while data(end, e) ~= 0
+                %     e = e - 1;
+                % end
+                % e = e + 1;
+                % data = data(:, e:end);
+                % size(data)
+                % offlineData.data = data;
+                % save offlineData offlineData
 
                 [Output_acc, Max_line, filter, model_final, mean_temp_final, std_temp_final] = model_dry(offlineData);
                 Output_acc
