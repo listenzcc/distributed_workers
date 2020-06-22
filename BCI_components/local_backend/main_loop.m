@@ -16,9 +16,11 @@ end
 
 %% Get input data
 raw = fread(TCPIP_Client, TCPIP_Client.BytesAvailable, 'uint8');
-data = char(raw)';
+% data = char(raw)';
+data = native2unicode(raw, 'UTF-8')';
 disp('Got data:')
 disp(data)
+% disp(raw)
 
 % Response to 'quit' as escape command
 if strcmp(data, 'quit')
@@ -28,7 +30,7 @@ end
 
 % Response to '-' as send-back command
 if data(1) == '-'
-    fwrite(TCPIP_Client, data)
+    fwrite(TCPIP_Client, unicode2native(data))
     return
 end
 
