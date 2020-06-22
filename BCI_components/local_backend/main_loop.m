@@ -118,11 +118,10 @@ for idx = 1:length(jsons)
         switch json.cmd
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             case 'kaishicaiji'
+                broadcast('kaishicaiji')
                 
                 if strcmp(STATE, 'Busy')
                     disp('Stop offline collection')
-                    dataServer.Close();
-                    disp('Stop collection.')
 
                     data = dataServer.GetBufferData;
                     disp(['Saving on ', MAT_FILE_PATH])
@@ -138,7 +137,6 @@ for idx = 1:length(jsons)
                     STATE = 'Idle'
                 end
                 
-                broadcast('kaishicaiji')
                 assert(strcmp(STATE, 'Idle'))
                 
                 disp('Start offline collection')
@@ -156,8 +154,6 @@ for idx = 1:length(jsons)
                 assert(strcmp(STATE, 'Busy'))
                 
                 disp('Stop offline collection')
-                dataServer.Close();
-                disp('Stop collection.')
                 
                 data = dataServer.GetBufferData;
                 disp(['Saving on ', MAT_FILE_PATH])
