@@ -173,7 +173,7 @@ class Client():
         """ Report the client. """
         print(self.client.__str__(), self.client._closed)
 
-    def send(self, msg):
+    def send(self, msg, encoding='utf-8'):
         """Send [msg] to connected TCP Client
 
         Arguments:
@@ -181,11 +181,11 @@ class Client():
         """
         # Dumps dict
         if isinstance(msg, dict):
-            msg = json.dumps(msg)
+            msg = json.dumps(msg, ensure_ascii=False).encode(encoding)
 
         # Encode str
         if isinstance(msg, str):
-            msg = msg.encode('utf-8')
+            msg = msg.encode(encoding)
 
         # Send
         self.client.sendall(msg)
@@ -267,14 +267,23 @@ class Client():
                 assert(not data == b'')
 
                 # Parse data using JSON format,
+                # Decode data
+                try:
+                    decoded_data = data.decode('ansi')
+                except:
+                    logger.info(f'{data} can not be decoded.')
+                    logger.debug(f'{data} can not be decoded.')
+                    continue
+
                 # send ParseError if parsing is failed
                 try:
-                    D = json.loads(data.decode())
+                    D = json.loads(decoded_data)
                 except:
                     logger.debug(
-                        f'{data} can not be loaded by JSON, try linked expection.')
+                        f'{decoded_data} can not be loaded by JSON, try linked expection.')
                     try:
-                        split = data.decode().split('}{')
+                        split = decoded_data.split('}{')
+
                         D = list()
                         for s in split:
                             if not s.startswith('{'):
@@ -284,10 +293,11 @@ class Client():
                             D.append(json.loads(s))
                         logger.debug(f'Link exception success: {D}.')
                     except:
-                        logger.error(f'{data} can not be loaded by JSON')
+                        logger.error(
+                            f'{decoded_data} can not be loaded by JSON')
                         logger.error('{}'.format(traceback.format_exc()))
                         self.send(real_time_reply.ParseError(
-                            detail=data.decode()))
+                            detail=decoded_data))
                         continue
                 # print(D)
 
@@ -332,7 +342,7 @@ if __name__ == '__main__':
 
         if not msg == '':
             for c in server.clientpool:
-                c.client.sendall(msg.encode())
+                c.send(f'- | {msg} |', )  # encoding='ansi')
             continue
 
         server.pprint()

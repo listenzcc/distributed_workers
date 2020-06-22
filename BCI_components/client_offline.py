@@ -7,8 +7,9 @@ import threading
 
 print(__file__)  # noqa
 sys.path.append(os.path.dirname(__file__))  # noqa
-
 from client_module import new_client, listen, logger, CurrentDirectory
+
+DATA_SHOP = '数据集'
 
 client = new_client()
 t = threading.Thread(target=listen, args=(client,))
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     send(dict(mode='Offline',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'Data', f'{sessionID}--'),
+                  CurrentDirectory, DATA_SHOP, subjectID, 'Data', f'{sessionID}--'),
               timestamp=time.time()))
     time.sleep(10)
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     send(dict(mode='Offline',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'Data', sessionID),
+                  CurrentDirectory, DATA_SHOP, subjectID, 'Data', sessionID),
               timestamp=time.time()))
     time.sleep(200)
 
@@ -69,9 +70,9 @@ if __name__ == '__main__':
     send(dict(mode='Offline',
               cmd='jianmo',
               shujulujing=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'Data', f'{sessionID}.mat'),
+                  CurrentDirectory, DATA_SHOP, subjectID, 'Data', f'{sessionID}.mat'),
               moxinglujingqianzhui=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'Model', sessionID),
+                  CurrentDirectory, DATA_SHOP, subjectID, 'Model', sessionID),
               timestamp=time.time()))
     time.sleep(1)
 

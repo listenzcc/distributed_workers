@@ -7,9 +7,9 @@ import threading
 
 print(__file__)  # noqa
 sys.path.append(os.path.dirname(__file__))  # noqa
-
 from client_module import new_client, listen, logger, CurrentDirectory
 
+DATA_SHOP = '数据集'
 
 client_UI = new_client(role='UI')
 client_GAME = new_client(role='GAME')
@@ -47,13 +47,13 @@ if __name__ == '__main__':
 
     # Correct package, start online
     models = os.listdir(os.path.join(
-        CurrentDirectory, 'DataShop', subjectID, 'Model'))
+        CurrentDirectory, DATA_SHOP, subjectID, 'Model'))
     send(dict(mode='Online',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'OnlineData', f'{sessionID}-1'),
+                  CurrentDirectory, DATA_SHOP, subjectID, 'OnlineData', f'{sessionID}-1'),
               moxinglujing=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'Model', models[0]),
+                  CurrentDirectory, DATA_SHOP, subjectID, 'Model', models[0]),
               timestamp=time.time()),
          client_UI)
 
@@ -72,13 +72,13 @@ if __name__ == '__main__':
 
     # In-correct package, start online
     models = os.listdir(os.path.join(
-        CurrentDirectory, 'DataShop', subjectID, 'Model'))
+        CurrentDirectory, DATA_SHOP, subjectID, 'Model'))
     send(dict(mode='Online',
               cmd='kaishicaiji',
               shujulujingqianzhui=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'OnlineData', f'{sessionID}-2'),
+                  CurrentDirectory, DATA_SHOP, subjectID, 'OnlineData', f'{sessionID}-2'),
               moxinglujing=os.path.join(
-                  CurrentDirectory, 'DataShop', subjectID, 'Model', models[0]),
+                  CurrentDirectory, DATA_SHOP, subjectID, 'Model', models[0]),
               timestamp=time.time()),
          client_UI)
 
