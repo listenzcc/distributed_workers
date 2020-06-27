@@ -8,7 +8,7 @@ import traceback
 
 print(__file__)  # noqa
 sys.path.append(os.path.dirname(__file__))  # noqa
-from local_profile import RealtimeReply, RuntimeError, logger
+from local_profile import RealtimeReply, RuntimeError, USE_BACKEND, logger
 
 # Real-time reply instance
 real_time_reply = RealtimeReply()
@@ -73,6 +73,9 @@ class Worker():
         self._state = 'Busy'
         # The labels of estimated and true labels
         self._labels = []
+        # Setup default send_backend as send
+        if not USE_BACKEND:
+            self.send_backend = send
 
     def get_ready(self, state='Idle', moxinglujing=None, shujulujing=None, send_UI=send):
         """Get ready for comming operation,
@@ -188,6 +191,12 @@ class Worker():
                                      zhunquelv=zhunquelv,
                                      timestamp=time.time()))
 
+        if not USE_BACKEND:
+            print('-' * 80)
+            print(moxinglujing)
+            with open(moxinglujing, 'w') as f:
+                f.writelines(['Fake model.'])
+
         logger.debug(
             f'Built model based on {shujulujing}, model has been saved in {moxinglujing}.')
         logger.info(
@@ -250,6 +259,9 @@ class Worker():
         self.get_ready(state='Offline')
         path = f'{shujulujingqianzhui}.mat'
 
+        if not USE_BACKEND:
+            self._shujulujing = path
+
         try:
             self.send_backend(dict(cmd='kaishicaiji',
                                    mat_path=path,
@@ -291,6 +303,10 @@ class Worker():
         except:
             logger.info('Fail to stop offline recording in backend.')
             traceback.print_exc()
+
+        if not USE_BACKEND:
+            with open(self._shujulujing, 'w') as f:
+                f.writelines(['Fake data.'])
 
         logger.debug('Stopped offline collection.')
         return 0
@@ -334,9 +350,18 @@ class Worker():
         self.latest_jianmo_send = send
         self.latest_shujulujing = shujulujing
         self.latest_moxinglujing = moxinglujing
-        self.send_backend(dict(cmd='jianmo',
-                               moxinglujing=moxinglujing,
-                               shujulujing=shujulujing))
+        try:
+            self.send_backend(dict(cmd='jianmo',
+                                   moxinglujing=moxinglujing,
+                                   shujulujing=shujulujing))
+        except:
+            logger.info('Fail on sending jianmo request to backend.')
+
+        # If not USE_BACKEND,****************************************
+        # use response_jianmo
+        if not USE_BACKEND:
+            self.response_jianmo(zhunquelv=1.0, timestamp=0, send=send)
+
         logger.debug('Building model.')
         logger.info('Building model.')
 
@@ -377,6 +402,9 @@ class Worker():
 
         # Workload
         path = f'{shujulujingqianzhui}.mat'
+
+        if not USE_BACKEND:
+            self._shujulujing = path
 
         # Remember Send-to-UI method,
         # as Start online collection can only be triggered by UI.
@@ -426,6 +454,10 @@ class Worker():
             logger.info('Fail to stop offline recording in backend.')
             traceback.print_exc()
 
+        if not USE_BACKEND:
+            with open(self._shujulujing, 'w') as f:
+                f.writelines(['Fake online data.'])
+
         # Calculate accuracy
         try:
             zhunquelv = self.accuracy()
@@ -473,7 +505,16 @@ class Worker():
         # the query result will be send through it
         self.latest_query_send = send
         self.latest_zhenshibiaoqian = zhenshibiaoqian
-        self.send_backend(dict(cmd='query'))
+        try:
+            self.send_backend(dict(cmd='query'))
+        except:
+            logger.info(f'Fail to send query request to backend.')
+
+        # If not USE_BACKEND,****************************************
+        # simulation response_query
+        if not USE_BACKEND:
+            self.response_query(zhenshibiaoqian, timestamp=0, send=send)
+
         # # Guess label, always return '2' for now
         # # todo: Estimate label from real data
         # logger.debug('Estimating label.')
