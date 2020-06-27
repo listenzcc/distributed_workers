@@ -269,7 +269,7 @@ class Client():
                 # Parse data using JSON format,
                 # Decode data
                 try:
-                    decoded_data = data.decode('ansi')
+                    decoded_data = data.decode('utf-8')
                 except:
                     logger.info(f'{data} can not be decoded.')
                     logger.debug(f'{data} can not be decoded.')

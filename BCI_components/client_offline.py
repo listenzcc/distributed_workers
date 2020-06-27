@@ -50,7 +50,7 @@ if __name__ == '__main__':
               shujulujingqianzhui=os.path.join(
                   CurrentDirectory, DATA_SHOP, subjectID, 'Data', f'{sessionID}--'),
               timestamp=time.time()))
-    time.sleep(10)
+    time.sleep(2)
 
     # Repeat start offline
     send(dict(mode='Offline',
@@ -58,7 +58,7 @@ if __name__ == '__main__':
               shujulujingqianzhui=os.path.join(
                   CurrentDirectory, DATA_SHOP, subjectID, 'Data', sessionID),
               timestamp=time.time()))
-    time.sleep(200)
+    time.sleep(2)
 
     # Correct package, stop offline
     send(dict(mode='Offline',

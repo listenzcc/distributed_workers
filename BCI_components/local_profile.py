@@ -7,7 +7,7 @@ IP = 'localhost'
 PORT = 63365
 BUF_SIZE = 1024
 
-USE_BACKEND = True
+USE_BACKEND = False  # True
 IP_EEG_DEVICE = '127.0.0.1'
 PORT_EEG_DEVICE = 8844
 

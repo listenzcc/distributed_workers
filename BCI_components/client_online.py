@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # Correct package, query
     # 1: Real motion
     # 2: Fake motion
-    for j in range(30):
+    for j in range(10):
         send(dict(mode='Query',
                   chixushijian='3.0',
                   zhenshibiaoqian=f'{j % 2 + 1}',
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     # Correct package, query
     # 1: Real motion
     # 2: Fake motion
-    for j in range(30):
+    for j in range(10):
         send(dict(mode='Query',
                   chixushijian='3.0',
                   zhenshibiaoqian=f'{j % 2 + 1}',
