@@ -9,7 +9,7 @@ print(__file__)  # noqa
 sys.path.append(os.path.dirname(__file__))  # noqa
 from client_module import new_client, listen, logger, CurrentDirectory
 
-DATA_SHOP = '数据集'
+DATA_SHOP = '测试数据集'
 
 client = new_client()
 t = threading.Thread(target=listen, args=(client,))
@@ -58,7 +58,7 @@ if __name__ == '__main__':
               shujulujingqianzhui=os.path.join(
                   CurrentDirectory, DATA_SHOP, subjectID, 'Data', sessionID),
               timestamp=time.time()))
-    time.sleep(2)
+    time.sleep(200)
 
     # Correct package, stop offline
     send(dict(mode='Offline',

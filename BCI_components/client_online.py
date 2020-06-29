@@ -9,7 +9,7 @@ print(__file__)  # noqa
 sys.path.append(os.path.dirname(__file__))  # noqa
 from client_module import new_client, listen, logger, CurrentDirectory
 
-DATA_SHOP = '数据集'
+DATA_SHOP = '测试数据集'
 
 client_UI = new_client(role='UI')
 client_GAME = new_client(role='GAME')
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # Correct package, query
     # 1: Real motion
     # 2: Fake motion
-    for j in range(10):
+    for j in range(20):
         send(dict(mode='Query',
                   chixushijian='3.0',
                   zhenshibiaoqian=f'{j % 2 + 1}',
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     # Correct package, query
     # 1: Real motion
     # 2: Fake motion
-    for j in range(10):
+    for j in range(20):
         send(dict(mode='Query',
                   chixushijian='3.0',
                   zhenshibiaoqian=f'{j % 2 + 1}',
