@@ -360,7 +360,7 @@ class Worker():
         # If not USE_BACKEND,****************************************
         # use response_jianmo
         if not USE_BACKEND:
-            self.response_jianmo(zhunquelv=1.0, timestamp=0, send=send)
+            self.response_jianmo(zhunquelv="1.0", timestamp=0, send=send)
 
         logger.debug('Building model.')
         logger.info('Building model.')
