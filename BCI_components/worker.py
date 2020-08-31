@@ -513,6 +513,8 @@ class Worker():
         # If not USE_BACKEND,****************************************
         # simulation response_query
         if not USE_BACKEND:
+            # Use fix latency for message recognizeable
+            time.sleep(0.1)
             self.response_query(zhenshibiaoqian, timestamp=0, send=send)
 
         # # Guess label, always return '2' for now
