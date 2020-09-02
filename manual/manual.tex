@@ -172,7 +172,10 @@
 \end{itemize}
 
 % Socket contents
-\subsection{通信包说明}
+\subsection{数据包说明}
+
+每个通信包为\footnote{https://www.json.org/json-en.html}{JSON}字典格式的二进制字符串，支持\footnote{http://www.utf-8.com/}{UTF-8}编码，字符串内容包括拉丁字母和数字，尚不包括中文。
+在Python中，可以通过\footnote{https://docs.python.org/3/library/json.html}{json}包进行消息封装。
 
 \begin{enumerate}
     \item 心跳包
