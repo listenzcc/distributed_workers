@@ -1,0 +1,7 @@
+div {
+  outline-style: solid;
+  outline-width: 1px;
+  margin: 5px;
+  height: 400px;
+  overflow-y: scroll;
+}
